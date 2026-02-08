@@ -1,0 +1,33 @@
+# SIGDoc - React SPA + PHP API - InfinityFree
+
+# MIME types corretos para JS e CSS (alguns servidores retornam HTML por defeito)
+<IfModule mod_mime.c>
+    AddType application/javascript .js .mjs
+    AddType text/css .css
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # NUNCA reescrever pedidos a assets (JS, CSS) - têm prioridade máxima
+    RewriteRule ^assets/ - [L]
+
+    # NUNCA reescrever ficheiros estáticos por extensão
+    RewriteRule \.(js|mjs|css|svg|ico|woff2?|ttf|eot|png|jpg|jpeg|gif|webp)(\?.*)?$ - [L]
+
+    # Se o ficheiro ou pasta existe, servir diretamente
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Pastas PHP - não reescrever
+    RewriteRule ^(api|auth|documentos|usuarios|includes|vendor|backups|logs|uploads|font)/ - [L]
+
+    # Fallback SPA: resto vai para index.html
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+<IfModule mod_dir.c>
+    DirectoryIndex index.html index.php
+</IfModule>

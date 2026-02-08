@@ -1,0 +1,427 @@
+body {
+    background-color: #f8f9fa;
+}
+.container {
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+.card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    border-radius: 8px;
+}
+.btn-primary {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+.table th, .table td {
+    vertical-align: middle;
+}
+.navbar {
+    margin-bottom: 30px;
+}
+footer {
+    margin-top: 40px;
+    padding: 20px 0;
+    background: #343a40;
+    color: #fff;
+    text-align: center;
+    border-radius: 0 0 8px 8px;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 100;
+    font-size: 1rem;
+}
+.form-label {
+    font-weight: 500;
+}
+.logo-sigdoc {
+    height: 36px;
+    width: 36px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+/* Estilos para responsividade dos botões na tabela */
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* Garantir que a tabela seja totalmente responsiva */
+.table {
+    width: 100%;
+    table-layout: auto;
+}
+
+.table th,
+.table td {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+/* Para telas muito pequenas, ocultar colunas menos importantes */
+@media (max-width: 768px) {
+    .table th:nth-child(3), /* Tipo */
+    .table td:nth-child(3),
+    .table th:nth-child(4), /* Setor */
+    .table td:nth-child(4),
+    .table th:nth-child(6), /* Área Origem */
+    .table td:nth-child(6),
+    .table th:nth-child(8), /* Prioridade */
+    .table td:nth-child(8) {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .table th:nth-child(7), /* Área Destino */
+    .table td:nth-child(7),
+    .table th:nth-child(10), /* Usuário */
+    .table td:nth-child(10) {
+        display: none;
+    }
+}
+
+/* Estilos específicos para a coluna de ações */
+.acoes-cell {
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    padding: 0.5rem;
+}
+
+.acoes-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+}
+
+.acao-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    min-width: 0;
+    max-width: none;
+    text-align: center;
+    line-height: 1.2;
+    box-sizing: border-box;
+    display: inline-block;
+    vertical-align: middle;
+    text-decoration: none;
+    border-radius: 0.25rem;
+    transition: all 0.15s ease-in-out;
+}
+
+/* Garantir que os botões nunca sejam cortados */
+.acoes-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    min-height: 2rem;
+    box-sizing: border-box;
+}
+
+/* Remover larguras fixas da coluna Ações */
+.table th:last-child,
+.table td:last-child {
+    width: auto;
+    min-width: 0;
+    max-width: none;
+}
+
+/* Ajustes para diferentes tamanhos de tela */
+@media (max-width: 1200px) {
+    .acao-btn {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .acoes-buttons {
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+    
+    .acao-btn {
+        width: 100%;
+        font-size: 0.65rem;
+        padding: 0.15rem 0.3rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .acao-btn {
+        font-size: 0.6rem;
+        padding: 0.1rem 0.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .acao-btn {
+        font-size: 0.55rem;
+        padding: 0.1rem 0.2rem;
+    }
+}
+
+/* Estilos específicos para diferentes níveis de zoom */
+@media screen and (min-resolution: 120dpi) {
+    .acao-btn {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.6rem;
+    }
+}
+
+@media screen and (min-resolution: 144dpi) {
+    .acao-btn {
+        font-size: 0.9rem;
+        padding: 0.35rem 0.7rem;
+    }
+}
+
+/* Forçar modal full-width */
+.modal-full-width {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+}
+
+/* Sobrescrever qualquer estilo do Bootstrap */
+.modal.show .modal-dialog.modal-full-width {
+    transform: none !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Garantir que o modal ocupe toda a tela */
+.modal.show .modal-dialog.modal-full-width .modal-content {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+
+/* Garantir que a tabela nunca force scroll horizontal */
+.table-responsive {
+    overflow-x: auto;
+    max-width: 100%;
+    width: 100%;
+}
+
+.table {
+    min-width: 0;
+    width: 100%;
+}
+
+/* Forçar quebra de linha em textos longos */
+.table td {
+    max-width: 200px;
+    word-break: break-word;
+}
+
+/* Estilos para modal responsivo */
+.modal-dialog {
+    max-width: 90%;
+    margin: 1.75rem auto;
+}
+
+/* Modal que ocupa a mesma largura do navbar */
+.modal-full-width {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100vh !important;
+}
+
+.modal-full-width .modal-content {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+.modal-full-width .modal-header {
+    border-radius: 0 !important;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    color: white !important;
+    padding: 1.5rem 2rem !important;
+    margin: 0 !important;
+}
+
+.modal-full-width .modal-body {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding: 2rem !important;
+    background-color: #f8f9fa !important;
+    margin: 0 !important;
+}
+
+.modal-full-width .modal-footer {
+    border-radius: 0 !important;
+    background-color: #f8f9fa !important;
+    padding: 1.5rem 2rem !important;
+    border-top: 1px solid #dee2e6 !important;
+    margin: 0 !important;
+}
+
+.modal-lg {
+    max-width: 800px;
+}
+
+
+
+.modal-content {
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    padding: 1.5rem;
+}
+
+.modal-header .modal-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+}
+
+/* Estilos para os campos do modal */
+.modal-body .form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.modal-body .form-control,
+.modal-body .form-select {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.modal-body .form-control:focus,
+.modal-body .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+/* Alert informativo no modal */
+.modal-body .alert-info {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    border: 1px solid #bee5eb;
+    border-radius: 8px;
+    color: #0c5460;
+}
+
+.modal-body .alert-info strong {
+    color: #0a4b53;
+}
+
+.modal-body .alert-info ul {
+    padding-left: 1.5rem;
+}
+
+.modal-body .alert-info li {
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .modal-dialog {
+        max-width: 95%;
+        margin: 1rem auto;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .modal-footer {
+        padding: 1rem 1.5rem;
+    }
+    
+    .modal-full-width .modal-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .modal-full-width .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .modal-full-width .modal-footer {
+        padding: 1rem 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .modal-dialog {
+        max-width: 98%;
+        margin: 0.5rem auto;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 1rem;
+    }
+    
+    .modal-header {
+        padding: 1rem;
+    }
+    
+    .modal-header .modal-title {
+        font-size: 1.1rem;
+    }
+    
+    .modal-full-width .modal-header {
+        padding: 1rem;
+    }
+    
+    .modal-full-width .modal-body {
+        padding: 1rem;
+    }
+    
+    .modal-full-width .modal-footer {
+        padding: 0.75rem 1rem;
+    }
+} 

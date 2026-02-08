@@ -1,0 +1,5 @@
+# Garantir MIME types corretos (InfinityFree)
+<IfModule mod_mime.c>
+    AddType application/javascript .js .mjs
+    AddType text/css .css
+</IfModule>
