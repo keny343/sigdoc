@@ -4,14 +4,11 @@
  *
  * Priority:
  * 1. defaults from config.example.php
- * 2. includes/config.local.php (local / InfinityFree upload — never commit)
+ * 2. includes/config.local.php (local / InfinityFree — never commit)
  * 3. environment variables (Render / Docker) — override everything
  *
- * Env vars:
- *   SIGDOC_DB_HOST, SIGDOC_DB_PORT, SIGDOC_DB_NAME, SIGDOC_DB_USER, SIGDOC_DB_PASS
- *   SIGDOC_DB_SSL=1|true|require  (required for Aiven)
- *   SIGDOC_SMTP_HOST, SIGDOC_SMTP_USER, SIGDOC_SMTP_PASS, SIGDOC_SMTP_PORT, SIGDOC_SMTP_SECURE
- *   SIGDOC_API_TOKENS  (comma-separated)
+ * IMPORTANT: this file may be required from inside a function (pdo_factory).
+ * Always write to $GLOBALS['config'] so sigdoc_config() sees the values.
  */
 declare(strict_types=1);
 
@@ -28,15 +25,21 @@ if (is_file($configFile)) {
 }
 
 /**
- * Read a non-empty environment variable.
+ * Read env from getenv, $_ENV, or $_SERVER (Apache/Docker often skips getenv).
  */
 function sigdoc_env(string $key): ?string
 {
     $value = getenv($key);
     if ($value === false || $value === '') {
-        return null;
+        if (isset($_ENV[$key]) && $_ENV[$key] !== '') {
+            $value = (string) $_ENV[$key];
+        } elseif (isset($_SERVER[$key]) && $_SERVER[$key] !== '') {
+            $value = (string) $_SERVER[$key];
+        } else {
+            return null;
+        }
     }
-    return $value;
+    return (string) $value;
 }
 
 $dbHost = sigdoc_env('SIGDOC_DB_HOST');
@@ -99,6 +102,9 @@ if ($apiTokens !== null) {
     }
 }
 
+// Publish for sigdoc_config() even when this file is required inside a function
+$GLOBALS['config'] = $config;
+
 $host = (string) ($config['db']['host'] ?? '');
 $name = (string) ($config['db']['name'] ?? '');
 $user = (string) ($config['db']['user'] ?? '');
@@ -106,23 +112,27 @@ $pass = (string) ($config['db']['pass'] ?? '');
 
 $missingLocal = !is_file($configFile);
 $placeholderPass = $pass === '' || str_starts_with($pass, 'CHANGE_ME');
-$incomplete = $host === '' || $name === '' || $user === '' || $placeholderPass;
+$incomplete = $host === '' || $name === '' || $user === '' || $placeholderPass
+    || $host === '127.0.0.1' && $missingLocal && sigdoc_env('SIGDOC_DB_HOST') === null;
 
 if ($incomplete) {
-    $hint = $missingLocal
-        ? 'Set SIGDOC_DB_* environment variables (Render) or copy config.example.php → config.local.php.'
-        : 'Database credentials look incomplete or still use CHANGE_ME placeholders.';
+    $hint = 'Set SIGDOC_DB_HOST/NAME/USER/PASS (and SIGDOC_DB_SSL=1 for Aiven) in Render Environment, or use config.local.php.';
+    $seen = [];
+    foreach (['SIGDOC_DB_HOST', 'SIGDOC_DB_NAME', 'SIGDOC_DB_USER', 'SIGDOC_DB_PASS', 'SIGDOC_DB_SSL'] as $k) {
+        $seen[] = $k . '=' . (sigdoc_env($k) !== null ? 'set' : 'missing');
+    }
     if (PHP_SAPI === 'cli') {
-        fwrite(STDERR, "SIGDoc config error: {$hint}\n");
+        fwrite(STDERR, "SIGDoc config error: {$hint}\n" . implode(', ', $seen) . "\n");
     }
     http_response_code(500);
-    exit('SIGDoc: database configuration missing. ' . $hint);
+    header('Content-Type: text/plain; charset=utf-8');
+    exit("SIGDoc: database configuration missing.\n{$hint}\n" . implode("\n", $seen) . "\n");
 }
 
 if (!function_exists('sigdoc_config')) {
     function sigdoc_config(?string $key = null, $default = null)
     {
-        global $config;
+        $config = $GLOBALS['config'] ?? [];
         if ($key === null) {
             return $config;
         }
