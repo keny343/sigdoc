@@ -34,10 +34,12 @@ function validate_api_token() {
     // Remover "Bearer " se presente
     $token = str_replace('Bearer ', '', $token);
     
-    // Validar token (implementação básica)
-    // Em produção, use JWT ou similar
-    $valid_tokens = ['sigdoc_api_2025', 'admin_token_123'];
-    return in_array($token, $valid_tokens);
+    // Validar token — valores apenas em config.local.php (nunca no código)
+    $valid_tokens = sigdoc_config('api.tokens', []);
+    if (!is_array($valid_tokens) || $valid_tokens === []) {
+        return false;
+    }
+    return in_array($token, $valid_tokens, true);
 }
 
 // Verificar autenticação da API

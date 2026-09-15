@@ -1,0 +1,24 @@
+# Secrets & local overrides
+includes/config.local.php
+.env
+.env.*
+
+# Runtime
+uploads/*
+!uploads/.gitkeep
+logs/*
+!logs/.gitkeep
+backups/*
+!backups/.gitkeep
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# Frontend node (if restored later)
+node_modules/
+frontend/node_modules/
+frontend/dist/

@@ -36,8 +36,12 @@ if (!$usuario || !password_verify($senha, $usuario['senha'])) {
     json_response(['error' => 'Email ou senha inválidos!'], 401);
 }
 
-// Gerar token simples (em produção, use JWT ou similar)
-$token = 'sigdoc_api_2025'; // Pode ser personalizado por usuário
+// Token de sessão API — primeiro token configurado (preferir usuariosapi em produção)
+$tokens = sigdoc_config('api.tokens', []);
+$token = is_array($tokens) && isset($tokens[0]) ? $tokens[0] : null;
+if (!$token) {
+    json_response(['error' => 'API token não configurado no servidor.'], 500);
+}
 
 // Retornar dados do usuário e token
 json_response([

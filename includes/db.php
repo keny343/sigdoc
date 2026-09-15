@@ -1,17 +1,23 @@
 <?php
-// Configurações para Infinity Free
-$host = 'sql106.infinityfree.com';
-$db   = 'if0_40919058_sigdoc';
-$user = 'if0_40919058';
-$pass = 'Kenykeny2003';
-$port = 3306;
+require_once __DIR__ . '/config.php';
+
+$host = sigdoc_config('db.host');
+$db   = sigdoc_config('db.name');
+$user = sigdoc_config('db.user');
+$pass = sigdoc_config('db.pass');
+$port = (int) sigdoc_config('db.port', 3306);
+$charset = sigdoc_config('db.charset', 'utf8mb4');
 
 try {
-    $pdo = new PDO("mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4", $user, $pass);
+    $pdo = new PDO(
+        "mysql:host=$host;port=$port;dbname=$db;charset=$charset",
+        $user,
+        $pass
+    );
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    die("Erro na conexão: " . $e->getMessage());
+    die('Erro na conexão com a base de dados.');
 }
 
 // Auditoria de acessos (login/logout)
@@ -105,4 +111,3 @@ foreach ($perfilPerms as $perfil => $perms) {
         }
     }
 }
-?>
