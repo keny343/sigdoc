@@ -1,21 +1,231 @@
 <!DOCTYPE html>
 <html lang="pt">
-  <head>
-    <meta charset="UTF-8" />
-    <base href="/" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SIGDoc - Sistema Integrado de Gestão Documental</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="serve.php?f=index-1-NR7_7R.js"></script>
-    <link rel="stylesheet" crossorigin href="serve.php?f=index-TzBenqMC.css">
-  </head>
-  <body>
-    <div id="root"></div>
-    <noscript>
-      <p><a href="/auth/login.php">Entrar no SIGDoc</a></p>
-    </noscript>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <title>SIGDoc — Sistema Integrado de Gestão Documental</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="/includes/style.css?v=20260915b" rel="stylesheet" />
+  <style>
+    /* Critical CSS — landing funciona mesmo se style.css estiver em cache antigo */
+    :root {
+      --ink: #0f172a;
+      --ink-muted: #334155;
+      --ink-subtle: #64748b;
+      --brand: #0f766e;
+      --brand-hover: #0d9488;
+      --brand-muted: #ccfbf1;
+      --brand-deep: #115e59;
+      --surface: #f1f5f9;
+      --paper: #ffffff;
+      --borda: #e2e8f0;
+      --font-ui: 'DM Sans', system-ui, sans-serif;
+      --font-mono: 'DM Mono', ui-monospace, monospace;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --sombra-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --sombra-float: 0 8px 28px rgba(15, 23, 42, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body.lp {
+      margin: 0;
+      font-family: var(--font-ui);
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 55% 40% at 100% -10%, rgba(15, 118, 110, 0.12), transparent 55%),
+        var(--surface);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .lp-nav {
+      max-width: 1100px; margin: 0 auto; padding: 1.25rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .lp-brand { display: inline-flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+    .sig-mark {
+      width: 32px; height: 32px; border-radius: 4px; background: var(--brand); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.75rem; flex-shrink: 0;
+    }
+    .lp-brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+    .lp-brand-text strong { font-size: 1.05rem; font-weight: 700; }
+    .lp-brand-text span {
+      font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-subtle);
+    }
+    .lp-nav-actions { display: flex; align-items: center; gap: 0.75rem; }
+    .lp-nav-link { text-decoration: none; font-size: 0.875rem; font-weight: 500; color: var(--ink-muted); }
+    .lp-nav-link:hover { color: var(--brand); }
+    .lp-hero {
+      max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem;
+      display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 3rem; align-items: center;
+    }
+    .lp-kicker {
+      margin: 0 0 1rem; font-family: var(--font-mono); font-size: 0.7rem;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--brand);
+    }
+    .lp-title {
+      margin: 0 0 1rem; font-size: clamp(2.1rem, 5vw, 3.25rem); font-weight: 800;
+      letter-spacing: -0.035em; line-height: 1.05;
+    }
+    .lp-title em { font-style: normal; color: var(--brand); }
+    .lp-lede {
+      margin: 0 0 1.75rem; max-width: 38ch; font-size: 1.05rem; line-height: 1.65;
+      color: var(--ink-muted);
+    }
+    .lp-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .lp-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 44px; padding: 0.65rem 1.25rem; border-radius: var(--radius);
+      font-family: var(--font-ui); font-size: 0.95rem; font-weight: 600;
+      text-decoration: none; border: 1px solid transparent;
+    }
+    .lp-btn-primary { background: var(--brand); color: #fff; }
+    .lp-btn-primary:hover { background: var(--brand-hover); color: #fff; }
+    .lp-btn-ghost { background: var(--paper); color: var(--ink-muted); border-color: var(--borda); }
+    .lp-btn-ghost:hover { border-color: var(--brand); color: var(--brand); }
+    .lp-panel {
+      position: relative; border-radius: var(--radius-lg); padding: 1.75rem; color: #e2e8f0;
+      min-height: 280px; display: flex; flex-direction: column; justify-content: flex-end;
+      background: linear-gradient(145deg, #0f172a 0%, #134e4a 55%, #0f766e 120%);
+      box-shadow: var(--sombra-float); overflow: hidden;
+    }
+    .lp-panel-mark {
+      width: 40px; height: 40px; border-radius: 6px; display: grid; place-items: center;
+      background: rgba(94, 234, 212, 0.15); color: #5eead4; font-weight: 700;
+      font-size: 0.85rem; margin-bottom: 1.25rem;
+    }
+    .lp-panel h2 { margin: 0 0 0.5rem; font-size: 1.35rem; font-weight: 700; color: #fff; }
+    .lp-panel p { margin: 0; color: rgba(226, 232, 240, 0.8); line-height: 1.55; font-size: 0.875rem; }
+    .lp-features { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem 4.5rem; }
+    .lp-features-head { margin-bottom: 1.75rem; }
+    .lp-features-head h2 {
+      margin: 0 0 0.35rem; font-size: clamp(1.35rem, 2.5vw, 1.75rem); font-weight: 700;
+    }
+    .lp-features-head p { margin: 0; color: var(--ink-subtle); }
+    .lp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    .lp-card {
+      background: var(--paper); border: 1px solid var(--borda); border-radius: var(--radius);
+      padding: 1.25rem 1.35rem; box-shadow: var(--sombra-sm);
+    }
+    .lp-card-icon {
+      width: 36px; height: 36px; border-radius: 6px; display: grid; place-items: center;
+      background: var(--brand-muted); color: var(--brand-deep); margin-bottom: 0.85rem;
+      font-size: 0.8rem; font-weight: 700; font-family: var(--font-mono);
+    }
+    .lp-card h3 { margin: 0 0 0.35rem; font-size: 1rem; font-weight: 600; }
+    .lp-card p { margin: 0; font-size: 0.875rem; color: var(--ink-subtle); line-height: 1.55; }
+    .lp-cta { max-width: 1100px; margin: 0 auto 4rem; padding: 0 1.5rem; }
+    .lp-cta-inner {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 1.25rem; padding: 1.5rem 1.75rem; border-radius: var(--radius-lg);
+      background: var(--ink); color: #e2e8f0; border: 1px solid rgba(13, 148, 136, 0.25);
+    }
+    .lp-cta-inner h2 { margin: 0 0 0.25rem; font-size: 1.25rem; font-weight: 700; color: #fff; }
+    .lp-cta-inner p { margin: 0; color: rgba(226, 232, 240, 0.7); font-size: 0.875rem; }
+    .lp-footer {
+      max-width: 1100px; margin: 0 auto; padding: 0 1.5rem 2rem;
+      font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--ink-subtle);
+    }
+    @media (max-width: 900px) {
+      .lp-hero { grid-template-columns: 1fr; padding-top: 1.5rem; gap: 2rem; }
+      .lp-lede { max-width: none; }
+      .lp-grid { grid-template-columns: 1fr; }
+      .lp-panel { min-height: 220px; }
+    }
+  </style>
+</head>
+<body class="lp">
+  <nav class="lp-nav" aria-label="Principal">
+    <a class="lp-brand" href="/">
+      <span class="sig-mark" aria-hidden="true">SD</span>
+      <span class="lp-brand-text">
+        <strong>SIGDoc</strong>
+        <span>Document control</span>
+      </span>
+    </a>
+    <div class="lp-nav-actions">
+      <a class="lp-nav-link" href="#recursos">Recursos</a>
+      <a class="lp-btn lp-btn-primary" href="/auth/login.php">Entrar</a>
+    </div>
+  </nav>
+
+  <header class="lp-hero">
+    <div>
+      <p class="lp-kicker">Document management</p>
+      <h1 class="lp-title">Organize os seus <em>documentos</em> com controlo</h1>
+      <p class="lp-lede">
+        SIGDoc simplifica a gestão, tramitação e arquivo documental —
+        com acesso controlado, auditoria e mapa.
+      </p>
+      <div class="lp-actions">
+        <a class="lp-btn lp-btn-primary" href="/auth/login.php">Acessar o sistema</a>
+        <a class="lp-btn lp-btn-ghost" href="#recursos">Conhecer recursos</a>
+      </div>
+    </div>
+    <aside class="lp-panel" aria-hidden="true">
+      <div class="lp-panel-mark">SD</div>
+      <h2>Controlo documental de ponta a ponta</h2>
+      <p>Acesso por perfil, tramitação, auditoria e arquivo — no mesmo sistema.</p>
+    </aside>
+  </header>
+
+  <section class="lp-features" id="recursos">
+    <div class="lp-features-head">
+      <h2>O que o SIGDoc oferece</h2>
+      <p>Funcionalidades pensadas para fluxos reais de gestão documental.</p>
+    </div>
+    <div class="lp-grid">
+      <article class="lp-card">
+        <div class="lp-card-icon" aria-hidden="true">01</div>
+        <h3>Gestão documental</h3>
+        <p>Criar, versionar, tramitar e arquivar documentos com histórico claro.</p>
+      </article>
+      <article class="lp-card">
+        <div class="lp-card-icon" aria-hidden="true">02</div>
+        <h3>Controlo de acesso</h3>
+        <p>Perfis, permissões e auditoria de entradas no sistema.</p>
+      </article>
+      <article class="lp-card">
+        <div class="lp-card-icon" aria-hidden="true">03</div>
+        <h3>Mapa e localização</h3>
+        <p>Visualize documentos com contexto geográfico quando necessário.</p>
+      </article>
+      <article class="lp-card">
+        <div class="lp-card-icon" aria-hidden="true">04</div>
+        <h3>Segurança</h3>
+        <p>Login protegido, suporte a 2FA e cópias de segurança.</p>
+      </article>
+      <article class="lp-card">
+        <div class="lp-card-icon" aria-hidden="true">05</div>
+        <h3>Multi-idioma</h3>
+        <p>Interface disponível em Português e Inglês.</p>
+      </article>
+      <article class="lp-card">
+        <div class="lp-card-icon" aria-hidden="true">06</div>
+        <h3>Exportação</h3>
+        <p>Exporte listagens e mantenha o arquivo organizado.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="lp-cta">
+    <div class="lp-cta-inner">
+      <div>
+        <h2>Pronto para começar?</h2>
+        <p>Entre com a sua conta institucional.</p>
+      </div>
+      <a class="lp-btn lp-btn-primary" href="/auth/login.php">Entrar no SIGDoc</a>
+    </div>
+  </section>
+
+  <footer class="lp-footer">SIGDoc · Access control · PHP · MySQL</footer>
+</body>
 </html>

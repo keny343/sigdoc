@@ -1,33 +1,36 @@
-# SIGDoc - React SPA + PHP API - InfinityFree
+# SIGDoc - PHP app + static landing - InfinityFree
 
-# MIME types corretos para JS e CSS (alguns servidores retornam HTML por defeito)
 <IfModule mod_mime.c>
     AddType application/javascript .js .mjs
     AddType text/css .css
+</IfModule>
+
+# Evitar cache longo do InfinityFree em HTML/PHP (senão a landing antiga fica 30 dias)
+<IfModule mod_headers.c>
+    <FilesMatch "\.(html|php)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+    <FilesMatch "\.(css)$">
+        Header set Cache-Control "public, max-age=3600, must-revalidate"
+    </FilesMatch>
 </IfModule>
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
 
-    # NUNCA reescrever pedidos a assets (JS, CSS) - têm prioridade máxima
     RewriteRule ^assets/ - [L]
-
-    # NUNCA reescrever ficheiros estáticos por extensão
     RewriteRule \.(js|mjs|css|svg|ico|woff2?|ttf|eot|png|jpg|jpeg|gif|webp)(\?.*)?$ - [L]
-
-    # Pedidos .php: servir o ficheiro se existir; NÃO cair no SPA (evita login → index)
     RewriteRule \.php$ - [L]
 
-    # Se o ficheiro ou pasta existe, servir diretamente
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
-    # Pastas PHP - não reescrever
     RewriteRule ^(api|auth|documentos|usuarios|includes|vendor|backups|logs|uploads|font)/ - [L]
-
-    # Fallback SPA: só rotas sem ficheiro (landing React)
+    RewriteRule ^login/?$ /auth/login.php [L,R=302]
     RewriteRule ^ index.html [L]
 </IfModule>
 

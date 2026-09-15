@@ -54,7 +54,15 @@ $lang = get_lang();
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Entrar — SIGDoc</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="../includes/style.css" rel="stylesheet">
+  <link href="/includes/style.css" rel="stylesheet">
+  <style>
+    /* Fallback mínimo se /includes/style.css não carregar */
+    body { margin: 0; font-family: system-ui, sans-serif; }
+    .auth-panel { max-width: 24rem; }
+    .mb-3, .mb-4 { margin-bottom: 1rem; }
+    .form-control { display: block; width: 100%; box-sizing: border-box; padding: .6rem .75rem; }
+    .btn.w-100 { width: 100%; padding: .7rem; }
+  </style>
 </head>
 <body>
 <div class="auth-shell">

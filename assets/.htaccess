@@ -1,5 +1,13 @@
-# Garantir MIME types corretos (InfinityFree)
+# MIME types for InfinityFree (avoid text/html on .js/.css)
 <IfModule mod_mime.c>
     AddType application/javascript .js .mjs
     AddType text/css .css
 </IfModule>
+
+<FilesMatch "\.m?js$">
+    ForceType application/javascript
+</FilesMatch>
+
+<FilesMatch "\.css$">
+    ForceType text/css
+</FilesMatch>
