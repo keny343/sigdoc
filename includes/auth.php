@@ -15,7 +15,11 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 try {
     $pdo = sigdoc_pdo();
 } catch (PDOException $e) {
-    die('Erro na conexão com a base de dados.');
+    http_response_code(503);
+    header('Content-Type: text/plain; charset=utf-8');
+    // Safe diagnostics for Render logs / support (no password)
+    $host = function_exists('sigdoc_config') ? (string) sigdoc_config('db.host', '?') : '?';
+    die("Erro na conexão com a base de dados.\nHost: {$host}\n");
 }
 
 function is_logged_in(): bool

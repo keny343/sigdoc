@@ -2,7 +2,8 @@ FROM php:8.2-apache
 
 # System deps + PHP extensions for SIGDoc (PDO MySQL, mbstring, zip for Composer)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git unzip libzip-dev \
+        git unzip libzip-dev ca-certificates \
+    && update-ca-certificates \
     && docker-php-ext-install -j$(nproc) pdo pdo_mysql mysqli zip \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
