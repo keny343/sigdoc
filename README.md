@@ -46,13 +46,13 @@ Ready to redeploy on any **PHP + MySQL** host (InfinityFree, shared hosting, or 
 ### Redeploy checklist
 
 1. Create MySQL database + user on the host  
-2. Import schema/data from your dump (see [`docs/DATABASE.md`](./docs/DATABASE.md))  
+2. Import [`database/schema.sql`](./database/schema.sql) via phpMyAdmin — guide: [`docs/INFINITYFREE.md`](./docs/INFINITYFREE.md)  
 3. Upload project files (exclude `.git`, local secrets, and large junk)  
 4. Copy `includes/config.example.php` → `includes/config.local.php` **on the server only** and fill MySQL, SMTP, API tokens  
 5. **Rotate** any credentials that were previously committed or leaked  
 6. Ensure `uploads/`, `logs/`, and `backups/` are writable by PHP  
 7. Point the domain/document root at the project folder  
-8. Open `/auth/login.php` and verify: login → painel → documentos → mapa → 2FA flow  
+8. Open `/auth/login.php` — seed: `admin@sigdoc.local` / `Admin@123` (change immediately) 
 
 Until redeployed, run locally — [`docs/INSTALLATION.md`](./docs/INSTALLATION.md).
 

@@ -58,4 +58,5 @@ Faça upload de **toda** a pasta do projeto para o `htdocs` do InfinityFree.
 1. A pasta `assets` tem os 2 ficheiros: `index-1-NR7_7R.js` e `index-TzBenqMC.css`
 2. O `.htaccess` está na raiz
 3. O `serve.php` está na raiz
-4. A base de dados está configurada em `includes/db.php`
+4. A base de dados está configurada em `includes/config.local.php`
+5. O schema foi importado: `database/schema.sql` (ver `docs/INFINITYFREE.md`)

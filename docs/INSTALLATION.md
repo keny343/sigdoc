@@ -52,12 +52,12 @@ Open `http://localhost:8080`.
 
 ## 5. Redeploy (shared hosting)
 
-Follow `INSTRUCOES_UPLOAD.md`, and:
+See **[`INFINITYFREE.md`](./INFINITYFREE.md)** for MySQL import + `config.local.php`.
 
-1. Upload the project files (including the new UI: `includes/style.css`, `layout_*.php`, `auth/login.php`)
-2. Upload `includes/config.local.php` separately
-3. Ensure `uploads/`, `logs/`, `backups/` are writable
-4. For PDF export, ensure FPDF is reachable (`vendor/fpdf/fpdf.php`)
+1. Import [`database/schema.sql`](../database/schema.sql) via phpMyAdmin  
+2. Upload project files + `includes/config.local.php` (never commit secrets)  
+3. Ensure `uploads/`, `logs/`, `backups/` are writable  
+4. For PDF export, ensure FPDF is reachable (`vendor/fpdf/fpdf.php`)  
 5. Smoke-test `/auth/login.php` → painel → documentos → mapa
 
 ## 6. Smoke test
