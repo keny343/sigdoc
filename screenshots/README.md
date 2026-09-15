@@ -1,13 +1,18 @@
 # Screenshots
 
-Add 4–6 PNGs for the portfolio README:
+Captured from the live Render demo (`https://sigdoc-1fsj.onrender.com/`).
 
-| File | Screen |
-|------|--------|
-| `01-painel.png` | Dashboard |
-| `02-documentos.png` | Document list |
-| `03-mapa.png` | Leaflet map |
-| `04-2fa.png` | 2FA / sensitive access |
-| `05-export.png` | Export / PDF-CSV |
+| File | View |
+|------|------|
+| `01-login.png` | Auth / login |
+| `02-landing.png` | Public landing |
+| `03-dashboard.png` | Management panel |
+| `04-documentos.png` | Document list |
+| `05-mapa.png` | Geospatial map |
 
-Avoid real confidential document contents in public screenshots.
+Regenerate:
+
+```bash
+npm install playwright-core --no-save
+node scripts/capture-screenshots.mjs
+```

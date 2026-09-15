@@ -163,7 +163,23 @@ Full steps: [`docs/INSTALLATION.md`](./docs/INSTALLATION.md)
 
 ## Screenshots
 
-Add real captures under [`screenshots/`](./screenshots/) (login, dashboard, document list, document detail, map, 2FA). Folder exists; images still to capture from the live/local instance.
+### Landing
+![SIGDoc landing](./screenshots/02-landing.png)
+
+### Login
+![SIGDoc login](./screenshots/01-login.png)
+
+### Dashboard
+![SIGDoc dashboard / painel](./screenshots/03-dashboard.png)
+
+### Document list
+![SIGDoc document list](./screenshots/04-documentos.png)
+
+### Map
+![SIGDoc geospatial map](./screenshots/05-mapa.png)
+
+Live: [sigdoc-1fsj.onrender.com](https://sigdoc-1fsj.onrender.com/)
+
 
 ## Challenges & learnings
 
@@ -179,7 +195,7 @@ Add real captures under [`screenshots/`](./screenshots/) (login, dashboard, docu
 - [ ] Enforce `exigir_permissao()` across UI pages
 - [ ] Full user admin (list/edit/disable)
 - [ ] Replace static API bearer list with JWT / per-user tokens only
-- [ ] Capture and commit real screenshots
+- [ ] Capture 2FA / document detail screenshots when those flows are exercised in demos
 
 ## Author
 
