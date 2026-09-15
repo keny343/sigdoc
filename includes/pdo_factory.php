@@ -33,7 +33,7 @@ function sigdoc_pdo_params(): array
         || (is_string($ssl) && in_array(strtolower($ssl), ['true', 'require', 'required', 'yes'], true));
 
     if ($sslEnabled) {
-        // php:*-apache image ships system CAs; Aiven requires TLS.
+        // Aiven requires TLS. System CA bundle on php:*-apache; verify off for demo portability.
         $caCandidates = [
             '/etc/ssl/certs/ca-certificates.crt',
             '/etc/pki/tls/certs/ca-bundle.crt',
@@ -45,12 +45,7 @@ function sigdoc_pdo_params(): array
                 break;
             }
         }
-        // Enable TLS even if CA path is missing (mysqlnd).
-        if (!isset($options[PDO::MYSQL_ATTR_SSL_CA])) {
-            $options[PDO::MYSQL_ATTR_SSL_CA] = '';
-        }
         if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
-            // Portfolio/demo: TLS on; pin Aiven CA later for stricter verify.
             $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
         }
     }

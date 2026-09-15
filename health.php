@@ -1,7 +1,7 @@
 <?php
 /**
  * Lightweight health endpoint for Render / load balancers.
- * Does not expose credentials or SQL error details.
+ * Does not expose credentials. Includes SQLSTATE only when degraded.
  */
 declare(strict_types=1);
 
@@ -19,11 +19,14 @@ try {
     require_once __DIR__ . '/includes/pdo_factory.php';
     $pdo = sigdoc_pdo();
     $pdo->query('SELECT 1');
+    // Prove app schema is present (not only MySQL reachable)
+    $pdo->query('SELECT 1 FROM usuarios LIMIT 1');
     $payload['db'] = 'up';
 } catch (Throwable $e) {
     http_response_code(503);
     $payload['status'] = 'degraded';
     $payload['db'] = 'down';
+    $payload['sqlstate'] = (string) $e->getCode();
 }
 
 echo json_encode($payload, JSON_UNESCAPED_UNICODE);

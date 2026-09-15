@@ -6,23 +6,26 @@ SIGDoc is a classic **PHP + MySQL** app. Render runs the PHP container from this
 
 ```text
 GitHub (keny343/sigdoc)
-        │  push to main
+        │  push
         ▼
  Render Web Service (Docker · Apache · PHP 8.2)
-        │  SIGDOC_DB_* env vars
+        │  SIGDOC_DB_* + SIGDOC_DB_SSL=1
         ▼
- External MySQL (Aiven / Railway MySQL / VPS / …)
+ Aiven MySQL (TLS required)
 ```
+
+**Live demo:** https://sigdoc-1fsj.onrender.com/  
+**Login:** https://sigdoc-1fsj.onrender.com/auth/login.php  
 
 Auto-deploy: connect the GitHub repo once → every push to the linked branch rebuilds and redeploys.
 
-## 1. Create a MySQL database
+## 1. Create a MySQL database (Aiven)
 
-Pick any MySQL 8 host that allows remote connections (or private networking if you later add a private MySQL service).
-
-1. Create an empty database  
-2. Import [`database/schema.sql`](../database/schema.sql)  
-3. Note **host**, **port**, **database**, **user**, **password**
+1. Create a MySQL service on [Aiven](https://aiven.io)  
+2. Allow external IPs (or `0.0.0.0/0` for portfolio demo)  
+3. Import schema with [`database/install_aiven.sql`](../database/install_aiven.sql)  
+   (or run `node scripts/apply-schema.mjs` locally using a gitignored `.env`)  
+4. Note **host**, **port**, **database** (`defaultdb`), **user**, **password**
 
 Seed users (change after first login):
 

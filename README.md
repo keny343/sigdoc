@@ -41,20 +41,28 @@ A web platform with:
 
 ## Live demo / hosting
 
-**Recommended for portfolio:** [Render](https://render.com) with GitHub auto-deploy (Docker + PHP 8.2).  
-Guide: [`docs/RENDER.md`](./docs/RENDER.md)
+| | URL |
+|--|-----|
+| **App** | https://sigdoc-1fsj.onrender.com/ |
+| **Login** | https://sigdoc-1fsj.onrender.com/auth/login.php |
+| **Health** | https://sigdoc-1fsj.onrender.com/health.php |
+
+Demo seed (change after first login): `admin@sigdoc.local` / `Admin@123`
+
+Stack in production: **Render** (Docker · PHP 8.2 · Apache) + **Aiven MySQL** (TLS).  
+Guide: [`docs/RENDER.md`](./docs/RENDER.md) · Schema: [`database/install_aiven.sql`](./database/install_aiven.sql)
 
 Also works on InfinityFree / shared hosting / VPS (PHP + MySQL).
 
 ### Render (auto-deploy from GitHub)
 
-1. Create an **external MySQL** DB and import [`database/schema.sql`](./database/schema.sql)  
-2. On Render: **Web Service** → connect `keny343/sigdoc` → runtime **Docker**  
-3. Set `SIGDOC_DB_HOST`, `SIGDOC_DB_NAME`, `SIGDOC_DB_USER`, `SIGDOC_DB_PASS` (and SMTP if needed)  
+1. Create MySQL on Aiven (or other) and run [`database/install_aiven.sql`](./database/install_aiven.sql)  
+2. On Render: **Web Service** → repo `keny343/sigdoc` → branch with Dockerfile → runtime **Docker**  
+3. Set `SIGDOC_DB_*` including `SIGDOC_DB_SSL=1`  
 4. Health check: `/health.php`  
-5. Push to `main` → Render rebuilds automatically  
+5. Push → Render rebuilds automatically  
 
-Blueprint file: [`render.yaml`](./render.yaml) · Dockerfile: [`Dockerfile`](./Dockerfile)
+Blueprint: [`render.yaml`](./render.yaml) · Dockerfile: [`Dockerfile`](./Dockerfile)
 
 ### Shared hosting checklist (InfinityFree, etc.)
 
