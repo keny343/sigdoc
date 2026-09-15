@@ -19,7 +19,20 @@ try {
     $pdo->query('SELECT 1 FROM usuarios LIMIT 1');
 } catch (PDOException $e) {
     http_response_code(500);
-    die('SIGDoc: tabela usuarios em falta. Importa database/reset_and_install.sql na base Aiven.');
+    $dbName = (string) sigdoc_config('db.name', '?');
+    $dbHost = (string) sigdoc_config('db.host', '?');
+    $code = $e->getCode();
+    // Do not leak password; show enough to fix env / import mismatch.
+    header('Content-Type: text/plain; charset=utf-8');
+    die(
+        "SIGDoc: não foi possível ler a tabela usuarios.\n"
+        . "Host: {$dbHost}\n"
+        . "Database: {$dbName}\n"
+        . "PDO: {$code} " . $e->getMessage() . "\n\n"
+        . "Confirma no Render: SIGDOC_DB_NAME=defaultdb (ou o nome exacto do Aiven).\n"
+        . "No DBeaver, na mesma BD: SHOW TABLES LIKE 'usuarios';\n"
+        . "Se estiver vazia, corre database/reset_and_install.sql."
+    );
 }
 
 // Seed permission catalog when those tables exist (safe / idempotent)
