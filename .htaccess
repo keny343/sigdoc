@@ -16,6 +16,9 @@
     # NUNCA reescrever ficheiros estáticos por extensão
     RewriteRule \.(js|mjs|css|svg|ico|woff2?|ttf|eot|png|jpg|jpeg|gif|webp)(\?.*)?$ - [L]
 
+    # Pedidos .php: servir o ficheiro se existir; NÃO cair no SPA (evita login → index)
+    RewriteRule \.php$ - [L]
+
     # Se o ficheiro ou pasta existe, servir diretamente
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
@@ -24,7 +27,7 @@
     # Pastas PHP - não reescrever
     RewriteRule ^(api|auth|documentos|usuarios|includes|vendor|backups|logs|uploads|font)/ - [L]
 
-    # Fallback SPA: resto vai para index.html
+    # Fallback SPA: só rotas sem ficheiro (landing React)
     RewriteRule ^ index.html [L]
 </IfModule>
 

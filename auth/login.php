@@ -9,10 +9,10 @@ if (isset($_GET['lang']) && in_array($_GET['lang'], ['pt', 'en'], true)) {
 
 if (is_logged_in()) {
     if (function_exists('precisa_completar_2fa') && precisa_completar_2fa()) {
-        header('Location: verificar_2fa.php');
+        header('Location: /auth/verificar_2fa.php');
         exit;
     }
-    header('Location: ../painel.php');
+    header('Location: /painel.php');
     exit;
 }
 
@@ -35,10 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (function_exists('precisa_completar_2fa') && precisa_completar_2fa()) {
-            header('Location: verificar_2fa.php');
+            header('Location: /auth/verificar_2fa.php');
             exit;
         }
-        header('Location: ../painel.php');
+        header('Location: /painel.php');
         exit;
     } else {
         $erro = 'Credenciais inválidas.';

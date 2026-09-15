@@ -20,7 +20,7 @@ if (isset($_GET['lang']) && in_array($_GET['lang'], ['pt', 'en'])) {
 }
 
 if (!is_logged_in()) {
-    header('Location: auth/login.php');
+    header('Location: /auth/login.php');
     exit;
 }
 

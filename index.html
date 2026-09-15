@@ -13,11 +13,9 @@
     <link rel="stylesheet" crossorigin href="serve.php?f=index-TzBenqMC.css">
   </head>
   <body>
-    <script>
-      if (location.pathname !== '/' && location.pathname !== '' && !location.pathname.endsWith('/')) {
-        location.replace(location.origin + '/');
-      }
-    </script>
     <div id="root"></div>
+    <noscript>
+      <p><a href="/auth/login.php">Entrar no SIGDoc</a></p>
+    </noscript>
   </body>
 </html>

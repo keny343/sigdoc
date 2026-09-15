@@ -1,5 +1,5 @@
 <?php
-require_once '../includes/auth.php';
+require_once __DIR__ . '/../includes/auth.php';
 logout();
-header('Location: login.php');
-exit; 
+header('Location: /auth/login.php', true, 302);
+exit;
