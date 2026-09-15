@@ -20,27 +20,42 @@ Protect document confidentiality while remaining deployable on shared PHP hostin
 
 ## Secrets management (required)
 
+### Local / InfinityFree
+
 1. Copy `includes/config.example.php` → `includes/config.local.php`
 2. Fill DB, SMTP, and API tokens
 3. Upload `config.local.php` to the server **without** committing it
-4. **Rotate** any credentials that ever appeared in public git history:
-   - MySQL password (InfinityFree panel)
-   - Gmail **app password**
-   - API bearer tokens
+
+### Render / Docker
+
+Set `SIGDOC_DB_*` (and optional SMTP / API token) environment variables in the Render dashboard.  
+No `config.local.php` on the server. See [`RENDER.md`](./RENDER.md).
+
+### Rotation
+
+**Rotate** any credentials that ever appeared in public git history:
+
+- MySQL password
+- Gmail **app password**
+- API bearer tokens
 
 ## Known risks / debt (honest portfolio note)
 
 | Issue | Status | Mitigation path |
 |-------|--------|-----------------|
-| `auth/login.php` missing in tree | Broken entry in some flows | Restore login page / unify SPA login |
-| Static API bearer tokens | Weak for production | Prefer `usuariosapi` tokens or JWT |
+| CSRF tokens absent on state-changing forms | **P0 gap** | Session CSRF token + check on POST |
+| Rate limiting on login / 2FA OTP | **P0 gap** | Per-IP / per-account throttle + lockout |
+| Static API bearer tokens in config | Weak for production | Prefer `usuariosapi` tokens or JWT |
 | CORS `*` on API | Broad | Restrict origins |
-| CSRF tokens absent on forms | Gap | Add CSRF middleware |
 | `arquivo_acao.php` path ops | High risk if exposed | Auth + path allowlist |
 | Fine-grained `exigir_permissao()` underused in UI | Partial RBAC | Enforce on every mutating page |
 | Uploads under web root | Common shared-host pattern | Deny script execution in `uploads/` |
 
 Documenting these gaps is intentional: security maturity includes knowing what remains.
+
+### Deployment blocker vs code debt
+
+Go-live depends on **hosting steps** (MySQL + secrets + smoke test), not only code. Prefer [`RENDER.md`](./RENDER.md) for GitHub auto-deploy, or [`INFINITYFREE.md`](./INFINITYFREE.md) for shared hosting. CSRF and rate limits should be implemented next while the demo stays usable with strong passwords and short demo sessions.
 
 ## Pre-push checklist
 

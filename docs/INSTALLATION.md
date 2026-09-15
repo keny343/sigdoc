@@ -50,15 +50,16 @@ Open `http://localhost:8080`.
 
 **Option B — Apache/Nginx vhost** pointing at the project root (needed for nicer rewrites / `.htaccess`).
 
-## 5. Redeploy (shared hosting)
+## 5. Redeploy
 
-See **[`INFINITYFREE.md`](./INFINITYFREE.md)** for MySQL import + `config.local.php`.
+- **Render (recommended):** [`RENDER.md`](./RENDER.md) — GitHub auto-deploy + Docker  
+- **InfinityFree / shared hosting:** [`INFINITYFREE.md`](./INFINITYFREE.md)
 
-1. Import [`database/schema.sql`](../database/schema.sql) via phpMyAdmin  
-2. Upload project files + `includes/config.local.php` (never commit secrets)  
+1. Import [`database/schema.sql`](../database/schema.sql) into MySQL  
+2. Configure secrets (`config.local.php` **or** `SIGDOC_DB_*` env vars)  
 3. Ensure `uploads/`, `logs/`, `backups/` are writable  
 4. For PDF export, ensure FPDF is reachable (`vendor/fpdf/fpdf.php`)  
-5. Smoke-test `/auth/login.php` → painel → documentos → mapa
+5. Smoke-test `/health.php` → `/auth/login.php` → painel → documentos → mapa
 
 ## 6. Smoke test
 

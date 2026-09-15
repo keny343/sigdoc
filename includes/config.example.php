@@ -1,7 +1,13 @@
 <?php
 /**
  * Example configuration — safe to commit.
- * Copy to config.local.php and replace placeholders.
+ *
+ * Local / InfinityFree:
+ *   copy to config.local.php and replace placeholders.
+ *
+ * Render / Docker:
+ *   set SIGDOC_DB_* (and optional SIGDOC_SMTP_*, SIGDOC_API_TOKENS) env vars.
+ *   See docs/RENDER.md — no need for config.local.php on the server.
  */
 declare(strict_types=1);
 

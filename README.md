@@ -41,9 +41,22 @@ A web platform with:
 
 ## Live demo / hosting
 
-Ready to redeploy on any **PHP + MySQL** host (InfinityFree, shared hosting, or VPS).
+**Recommended for portfolio:** [Render](https://render.com) with GitHub auto-deploy (Docker + PHP 8.2).  
+Guide: [`docs/RENDER.md`](./docs/RENDER.md)
 
-### Redeploy checklist
+Also works on InfinityFree / shared hosting / VPS (PHP + MySQL).
+
+### Render (auto-deploy from GitHub)
+
+1. Create an **external MySQL** DB and import [`database/schema.sql`](./database/schema.sql)  
+2. On Render: **Web Service** → connect `keny343/sigdoc` → runtime **Docker**  
+3. Set `SIGDOC_DB_HOST`, `SIGDOC_DB_NAME`, `SIGDOC_DB_USER`, `SIGDOC_DB_PASS` (and SMTP if needed)  
+4. Health check: `/health.php`  
+5. Push to `main` → Render rebuilds automatically  
+
+Blueprint file: [`render.yaml`](./render.yaml) · Dockerfile: [`Dockerfile`](./Dockerfile)
+
+### Shared hosting checklist (InfinityFree, etc.)
 
 1. Create MySQL database + user on the host  
 2. Import [`database/schema.sql`](./database/schema.sql) via phpMyAdmin — guide: [`docs/INFINITYFREE.md`](./docs/INFINITYFREE.md)  
@@ -142,7 +155,7 @@ Full steps: [`docs/INSTALLATION.md`](./docs/INSTALLATION.md)
 
 ## Screenshots
 
-Add captures under [`screenshots/`](./screenshots/) (dashboard, documents list, map, 2FA).
+Add real captures under [`screenshots/`](./screenshots/) (login, dashboard, document list, document detail, map, 2FA). Folder exists; images still to capture from the live/local instance.
 
 ## Challenges & learnings
 
@@ -153,13 +166,12 @@ Add captures under [`screenshots/`](./screenshots/) (dashboard, documents list, 
 
 ## Roadmap
 
-- [ ] Restore / harden `auth/login.php` entrypoint in-repo
-- [ ] Full user admin (list/edit/disable)
+- [ ] CSRF tokens on forms (**P0**)
+- [ ] Rate limiting on login and 2FA (**P0**)
 - [ ] Enforce `exigir_permissao()` across UI pages
-- [ ] CSRF tokens on forms
-- [ ] Schema dump (`database.sql`) as code
+- [ ] Full user admin (list/edit/disable)
 - [ ] Replace static API bearer list with JWT / per-user tokens only
-- [ ] Rate limiting on login and 2FA
+- [ ] Capture and commit real screenshots
 
 ## Author
 

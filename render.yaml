@@ -1,0 +1,41 @@
+# Render Blueprint — SIGDoc
+# https://render.com/docs/blueprint-spec
+#
+# Notes:
+# - Render does NOT provide managed MySQL. Create MySQL elsewhere
+#   (Aiven, Railway MySQL, PlanetScale-compatible, VPS, …) and set SIGDOC_DB_*.
+# - Persistent uploads need a Disk (paid plans) or external object storage.
+
+services:
+  - type: web
+    name: sigdoc
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health.php
+    envVars:
+      - key: SIGDOC_DB_HOST
+        sync: false
+      - key: SIGDOC_DB_PORT
+        value: "3306"
+      - key: SIGDOC_DB_NAME
+        sync: false
+      - key: SIGDOC_DB_USER
+        sync: false
+      - key: SIGDOC_DB_PASS
+        sync: false
+      - key: SIGDOC_DB_CHARSET
+        value: utf8mb4
+      - key: SIGDOC_SMTP_HOST
+        sync: false
+      - key: SIGDOC_SMTP_USER
+        sync: false
+      - key: SIGDOC_SMTP_PASS
+        sync: false
+      - key: SIGDOC_SMTP_PORT
+        value: "587"
+      - key: SIGDOC_SMTP_SECURE
+        value: tls
+      - key: SIGDOC_API_TOKENS
+        sync: false

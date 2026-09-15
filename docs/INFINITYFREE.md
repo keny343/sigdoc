@@ -1,87 +1,109 @@
-# InfinityFree — base de dados SIGDoc
+# InfinityFree — deployment & smoke test (SIGDoc)
 
-## Onde está a BD?
+Goal: get a **working** demo on InfinityFree without committing secrets.
 
-| Item | Local |
-|------|--------|
-| Schema SQL para importar | [`database/schema.sql`](../database/schema.sql) |
-| Credenciais no servidor | `includes/config.local.php` (**não** vai no Git) |
-| Template | `includes/config.example.php` |
+## Where things live
 
-A app liga-se via PDO em `includes/db.php` → lê `config.local.php`.
+| Item | Location |
+|------|----------|
+| Schema to import | [`database/schema.sql`](../database/schema.sql) |
+| Credentials on server | `includes/config.local.php` (**never** in Git) |
+| Template | [`includes/config.example.php`](../includes/config.example.php) |
+| PDO entry | `includes/db.php` → reads `config.local.php` via `includes/config.php` |
 
-> Ligação remota a partir do PC costuma **falhar** no InfinityFree (DNS/firewall). Usa sempre o **phpMyAdmin** do painel.
+> Remote MySQL from your PC usually **fails** on InfinityFree (firewall). Use **phpMyAdmin** in the hosting panel for import and DB checks.
 
-## Passo a passo
+---
 
-### 1. MySQL no painel InfinityFree
+## Deployment checklist
+
+### 1. Create MySQL database
 
 1. Client Area → **MySQL Databases**
-2. Cria a base (ex.: `if0_XXXX_sigdoc`) se ainda não existir
-3. Anota:
-   - **Host** (ex.: `sql106.infinityfree.com`)
-   - **Database name**
-   - **Username**
-   - **Password**
+2. Create DB (e.g. `if0_XXXX_sigdoc`) if needed
+3. Note **Host**, **Database name**, **Username**, **Password**
 
-### 2. Importar o schema
+### 2. Import schema
 
-1. Abre **phpMyAdmin** (link no painel MySQL)
-2. Seleciona a base `if0_XXXX_sigdoc` na esquerda
-3. Separador **Import** → escolhe `database/schema.sql`
-4. **Go** / Executar
+1. Open **phpMyAdmin**
+2. Select the database
+3. **Import** → choose `database/schema.sql` → **Go**
 
-Se der erro em `POINT` / `POLYGON` / `SPATIAL`, o host pode ter spatial desactivado — nesse caso contacta o suporte ou importa sem as tabelas `acessos_geograficos` e `limites_geograficos` (o núcleo da app continua a funcionar; mapa fica limitado).
+If `POINT` / `POLYGON` / `SPATIAL` fails, the host may have spatial disabled. Import without `acessos_geograficos` / `limites_geograficos` if needed — core app still works; map features are limited.
 
-### 3. `config.local.php` no servidor
+### 3. Configure `config.local.php`
 
-No teu PC (já existe localmente) ou cria a partir do example:
+On your machine (local copy is gitignored):
 
 ```bash
 cp includes/config.example.php includes/config.local.php
 ```
 
-Preenche com os valores do painel:
+Fill DB (and SMTP if using email 2FA):
 
 ```php
 'db' => [
-    'host' => 'sqlXXX.infinityfree.com',  // do painel — NÃO uses localhost
+    'host' => 'sqlXXX.infinityfree.com',  // from panel — NOT localhost
     'port' => 3306,
     'name' => 'if0_XXXX_sigdoc',
     'user' => 'if0_XXXX',
-    'pass' => 'a-tua-password-mysql',
+    'pass' => 'YOUR_MYSQL_PASSWORD',
     'charset' => 'utf8mb4',
 ],
 ```
 
-Faz upload de `includes/config.local.php` via File Manager / FTP para o hosting.  
-**Nunca** commits este ficheiro.
+Upload **only** via File Manager / FTP. **Never** commit this file.
 
-### 4. Login inicial (seed)
+### 4. Upload application files
 
-Após importar `schema.sql`:
+Upload the PHP app (exclude `includes/config.local.php` from git; include it on the server separately).
 
-| Email | Password | Perfil |
-|-------|----------|--------|
-| `admin@sigdoc.local` | `Admin@123` | admin |
-| `gestor@sigdoc.local` | `Admin@123` | gestor |
-
-Altera as passwords depois do primeiro login. O segundo utilizador existe para o campo **área destino** (email) ao criar documentos.
-
-### 5. Pastas graváveis
-
-Garante permissão de escrita em:
+Writable folders (create if missing, chmod as allowed by host):
 
 - `uploads/`
 - `logs/`
 - `backups/`
 
-### 6. Smoke test
+### 5. Seed login (after schema import)
 
-1. `https://teu-dominio/auth/login.php`
-2. Login com `admin@sigdoc.local`
-3. Painel → Documentos → Mapa
+| Email | Password | Role |
+|-------|----------|------|
+| `admin@sigdoc.local` | `Admin@123` | admin |
+| `gestor@sigdoc.local` | `Admin@123` | gestor |
 
-## Segurança
+Change passwords after first successful login.
 
-As passwords MySQL/SMTP que estiveram no código público devem ser **rodadas** no painel InfinityFree e no Gmail (app password), e actualizadas só em `config.local.php` no servidor.
+---
+
+## Smoke test (required before calling it “deployed”)
+
+Work through in order. Stop and fix if a step fails.
+
+| # | Check | How |
+|---|--------|-----|
+| 1 | PDO / DB | Login page loads without DB error; wrong password shows auth error (not connection dump) |
+| 2 | Login | `…/auth/login.php` with `admin@sigdoc.local` |
+| 3 | Dashboard | `painel.php` loads KPIs / navigation |
+| 4 | Documents | List + open a document |
+| 5 | Uploads | Add/attach a file under allowed types; file appears; no PHP execution under `uploads/` |
+| 6 | Permissions | Non-admin / lower role cannot reach admin-only actions |
+| 7 | 2FA | For confidential/secret flow: OTP email path works (SMTP must be configured) |
+| 8 | API | Authenticated call to REST endpoint with token from config / `usuariosapi` |
+| 9 | Map | `mapa.php` loads (limited if spatial tables skipped) |
+
+Optional follow-ups: export CSV/PDF, movement history, document versions.
+
+---
+
+## Security reminders
+
+- Rotate any MySQL / SMTP / API credentials that ever appeared in public history
+- Keep `includes/config.local.php` gitignored and off screenshots
+- Known gaps (CSRF, login/2FA rate limits): see [`SECURITY.md`](./SECURITY.md)
+
+## Local vs hosting
+
+| Environment | DB host tip |
+|-------------|-------------|
+| Local XAMPP/WAMP | Often `127.0.0.1` |
+| InfinityFree | Host from panel (`sqlXXX.infinityfree.com`) |

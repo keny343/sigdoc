@@ -1,7 +1,10 @@
 <?php
 require_once 'includes/db.php';
 require_once 'includes/lang.php';
-require_once 'fpdf.php';
+if (!defined('FPDF_FONTPATH')) {
+    define('FPDF_FONTPATH', __DIR__ . '/font/');
+}
+require_once __DIR__ . '/vendor/fpdf/fpdf.php';
 
 session_start();
 if (!isset($_SESSION['usuario_id'])) {
