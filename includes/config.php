@@ -9,6 +9,7 @@
  *
  * Env vars:
  *   SIGDOC_DB_HOST, SIGDOC_DB_PORT, SIGDOC_DB_NAME, SIGDOC_DB_USER, SIGDOC_DB_PASS
+ *   SIGDOC_DB_SSL=1|true|require  (required for Aiven)
  *   SIGDOC_SMTP_HOST, SIGDOC_SMTP_USER, SIGDOC_SMTP_PASS, SIGDOC_SMTP_PORT, SIGDOC_SMTP_SECURE
  *   SIGDOC_API_TOKENS  (comma-separated)
  */
@@ -44,6 +45,7 @@ $dbUser = sigdoc_env('SIGDOC_DB_USER');
 $dbPass = sigdoc_env('SIGDOC_DB_PASS');
 $dbPort = sigdoc_env('SIGDOC_DB_PORT');
 $dbCharset = sigdoc_env('SIGDOC_DB_CHARSET');
+$dbSsl = sigdoc_env('SIGDOC_DB_SSL');
 
 if ($dbHost !== null) {
     $config['db']['host'] = $dbHost;
@@ -62,6 +64,9 @@ if ($dbPass !== null) {
 }
 if ($dbCharset !== null) {
     $config['db']['charset'] = $dbCharset;
+}
+if ($dbSsl !== null) {
+    $config['db']['ssl'] = $dbSsl;
 }
 
 $smtpHost = sigdoc_env('SIGDOC_SMTP_HOST');

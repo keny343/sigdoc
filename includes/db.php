@@ -1,21 +1,8 @@
 <?php
-require_once __DIR__ . '/config.php';
-
-$host = sigdoc_config('db.host');
-$db   = sigdoc_config('db.name');
-$user = sigdoc_config('db.user');
-$pass = sigdoc_config('db.pass');
-$port = (int) sigdoc_config('db.port', 3306);
-$charset = sigdoc_config('db.charset', 'utf8mb4');
+require_once __DIR__ . '/pdo_factory.php';
 
 try {
-    $pdo = new PDO(
-        "mysql:host=$host;port=$port;dbname=$db;charset=$charset",
-        $user,
-        $pass
-    );
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    $pdo = sigdoc_pdo();
 } catch (PDOException $e) {
     die('Erro na conexão com a base de dados.');
 }

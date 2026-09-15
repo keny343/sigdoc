@@ -20,6 +20,8 @@ return [
         'user' => 'sigdoc_user',
         'pass' => 'CHANGE_ME_DB_PASSWORD',
         'charset' => 'utf8mb4',
+        // Aiven / managed MySQL with required TLS:
+        'ssl' => false,
     ],
     'smtp' => [
         'host' => 'smtp.example.com',

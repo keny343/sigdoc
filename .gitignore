@@ -2,6 +2,7 @@
 includes/config.local.php
 .env
 .env.*
+!.env.example
 
 # Runtime
 uploads/*

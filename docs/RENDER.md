@@ -59,6 +59,7 @@ Seed users (change after first login):
 | `SIGDOC_DB_USER` | yes | `sigdoc_user` |
 | `SIGDOC_DB_PASS` | yes | *(secret)* |
 | `SIGDOC_DB_CHARSET` | no | `utf8mb4` |
+| `SIGDOC_DB_SSL` | **yes for Aiven** | `1` |
 | `SIGDOC_SMTP_HOST` | for 2FA email | `smtp.gmail.com` |
 | `SIGDOC_SMTP_USER` | for 2FA | |
 | `SIGDOC_SMTP_PASS` | for 2FA | app password |

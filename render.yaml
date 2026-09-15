@@ -27,6 +27,8 @@ services:
         sync: false
       - key: SIGDOC_DB_CHARSET
         value: utf8mb4
+      - key: SIGDOC_DB_SSL
+        value: "1"
       - key: SIGDOC_SMTP_HOST
         sync: false
       - key: SIGDOC_SMTP_USER
