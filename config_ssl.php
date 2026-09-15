@@ -50,9 +50,9 @@ function set_security_headers()
     header(
         "Content-Security-Policy: default-src 'self'; " .
         "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; " .
-        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; " .
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com; " .
         "img-src 'self' data: https://*.tile.openstreetmap.org https://unpkg.com https://cdn.jsdelivr.net; " .
-        "font-src 'self' https://cdn.jsdelivr.net; " .
+        "font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; " .
         "connect-src 'self' https://cdn.jsdelivr.net https://router.project-osrm.org;"
     );
 

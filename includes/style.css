@@ -1,9 +1,8 @@
 /* ==========================================================================
    SIGDoc Design System — product UI (slate + teal)
    Same craft as Mara & Lu V2: tokens, borders, density — own brand palette.
+   Fonts: load via <link> in HTML (not @import — faster + CSP-friendly).
    ========================================================================== */
-
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
 
 :root {
   --ink: #0f172a;
