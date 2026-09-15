@@ -26,6 +26,7 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS metadados (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_require();
     $titulo = $_POST['titulo'];
     $descricao = $_POST['descricao'];
     $tipo = $_POST['tipo'];
@@ -152,6 +153,7 @@ require '../includes/layout_header.php';
 <div class="card p-4">
     <?php if (isset($erro)) echo "<div class='alert alert-danger'>" . htmlspecialchars($erro) . "</div>"; ?>
     <form method="post" enctype="multipart/form-data">
+        <?= csrf_field() ?>
         <div class="mb-3">
             <label class="form-label"><?= t('title') ?></label>
             <input type="text" name="titulo" class="form-control" required>

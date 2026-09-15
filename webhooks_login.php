@@ -8,6 +8,7 @@ if (is_logged_in() && is_admin()) {
 
 $erro = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_require();
     $email = trim($_POST['email'] ?? '');
     $senha = trim($_POST['senha'] ?? '');
     if (login($email, $senha)) {
@@ -39,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="alert alert-danger"> <?= htmlspecialchars($erro) ?> </div>
         <?php endif; ?>
         <form method="post">
+            <?= csrf_field() ?>
             <div class="mb-3">
                 <label class="form-label">E-mail</label>
                 <input type="email" name="email" class="form-control" required autofocus>

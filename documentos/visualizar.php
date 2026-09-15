@@ -67,6 +67,7 @@ if ($documento['area_destino'] === $_SESSION['usuario_email']) {
 
 // Processar confirmação de recebimento
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar_recebimento']) && $pode_confirmar) {
+    csrf_require();
     registrar_movimentacao($id, $_SESSION['usuario_id'], 'recebido', 'Recebimento confirmado.');
     // Webhook documento_recebido
     require_once '../includes/webhook.php';
@@ -176,6 +177,7 @@ require '../includes/layout_header.php';
                     
                     <?php if ($pode_confirmar): ?>
                         <form method="post" class="mt-3">
+                            <?= csrf_field() ?>
                             <button type="submit" name="confirmar_recebimento" class="btn btn-success">
                                 <i class="bi bi-check-circle"></i> <?= t('confirm_receipt') ?>
                             </button>

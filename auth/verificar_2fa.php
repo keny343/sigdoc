@@ -44,6 +44,7 @@ if (!$codigo_existe || $codigo_expirado) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_require();
     $codigo_digitado = $_POST['codigo_2fa'] ?? '';
 
     if (verificar_codigo_2fa_email($codigo_digitado, $usuario['codigo_2fa'], $usuario['data_codigo_2fa'])) {
@@ -97,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <form method="post" class="auth-form">
+        <?= csrf_field() ?>
         <div class="mb-3">
           <label class="form-label" for="codigo_2fa">Código</label>
           <input type="text" name="codigo_2fa" id="codigo_2fa" class="form-control form-control-lg text-center"

@@ -8,6 +8,7 @@ Protect document confidentiality while remaining deployable on shared PHP hostin
 
 | Control | Where |
 |---------|--------|
+| CSRF on HTML form POSTs | `includes/csrf.php` + forms / handlers |
 | Password hashing | `password_hash` / `password_verify` |
 | SQL injection resistance | PDO prepared statements |
 | Session hardening | `config_ssl.php` (Secure / HttpOnly / SameSite when HTTPS) |
@@ -43,8 +44,9 @@ No `config.local.php` on the server. See [`RENDER.md`](./RENDER.md).
 
 | Issue | Status | Mitigation path |
 |-------|--------|-----------------|
-| CSRF tokens absent on state-changing forms | **P0 gap** | Session CSRF token + check on POST |
+| CSRF tokens on state-changing HTML forms | **Done** | Session `_csrf` + `csrf_require()` |
 | Rate limiting on login / 2FA OTP | **P0 gap** | Per-IP / per-account throttle + lockout |
+| State-changing actions via GET (e.g. delete document, webhook toggle) | Gap | Convert to POST + CSRF |
 | Static API bearer tokens in config | Weak for production | Prefer `usuariosapi` tokens or JWT |
 | CORS `*` on API | Broad | Restrict origins |
 | `arquivo_acao.php` path ops | High risk if exposed | Auth + path allowlist |

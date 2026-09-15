@@ -46,6 +46,7 @@ if (!$pode_gerenciar_versoes) {
 
 // Processar upload de nova versão
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_versao'])) {
+    csrf_require();
     $observacoes = $_POST['observacoes'] ?? '';
     $arquivo = $_FILES['arquivo'];
     
@@ -101,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_versao'])) {
 
 // Processar restauração de versão
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['restaurar_versao'])) {
+    csrf_require();
     $versao_restaurar = $_POST['versao_restaurar'];
     
     $stmt = $pdo->prepare("SELECT * FROM documento_versoes WHERE documento_id = ? AND numero_versao = ?");
@@ -198,6 +200,7 @@ require '../includes/layout_header.php';
                                     <td>
                                         <?php if ($versao['numero_versao'] != $documento['versao_atual']): ?>
                                             <form method="post" style="display: inline;" onsubmit="return confirm('<?= t('restore_version_confirm') ?> <?= $versao['numero_versao'] ?>?')">
+                                                <?= csrf_field() ?>
                                                 <input type="hidden" name="versao_restaurar" value="<?= $versao['numero_versao'] ?>">
                                                 <button type="submit" name="restaurar_versao" class="btn btn-sm btn-warning">
                                                     <?= t('restore') ?>
@@ -221,6 +224,7 @@ require '../includes/layout_header.php';
                 </div>
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data">
+                        <?= csrf_field() ?>
                         <div class="mb-3">
                             <label class="form-label"><?= t('file') ?></label>
                             <input type="file" name="arquivo" class="form-control" required>

@@ -31,7 +31,8 @@ if (!$token) {
 }
 
 // Permite regenerar token
-if (isset($_POST['regenerar'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['regenerar'])) {
+    csrf_require();
     $token = gerar_token_api();
     $stmt = $pdo->prepare("UPDATE usuariosapi SET api_token = ? WHERE id = ?");
     $stmt->execute([$token, $_SESSION['usuarioapi_id']]);
@@ -61,6 +62,7 @@ if (isset($_POST['regenerar'])) {
             <div class="alert alert-success"> <?= htmlspecialchars($msg) ?> </div>
         <?php endif; ?>
         <form method="post">
+            <?= csrf_field() ?>
             <div class="mb-3">
                 <label class="form-label">Token de API</label>
                 <div class="input-group">

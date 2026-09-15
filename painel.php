@@ -183,6 +183,7 @@ require 'includes/layout_header.php';
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
     <div class="modal-content">
       <form method="post" action="usuarios/adicionar.php">
+        <?= csrf_field() ?>
         <div class="modal-header">
           <h5 class="modal-title" id="modalCriarUsuarioLabel"><?= t('create_new_user') ?></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= t('close') ?>"></button>

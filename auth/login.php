@@ -19,6 +19,7 @@ if (is_logged_in()) {
 $erro = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_require();
     $email = trim((string) ($_POST['email'] ?? ''));
     $senha = (string) ($_POST['senha'] ?? '');
 
@@ -93,6 +94,7 @@ $lang = get_lang();
       <?php endif; ?>
 
       <form method="post" class="auth-form" novalidate>
+        <?= csrf_field() ?>
         <div class="mb-3">
           <label class="form-label" for="email">Email</label>
           <input class="form-control" type="email" id="email" name="email" required autocomplete="username"

@@ -32,6 +32,7 @@ if (!$doc || !$pode_editar) {
     exit;
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_require();
     $titulo = $_POST['titulo'];
     $descricao = $_POST['descricao'];
     $tipo = $_POST['tipo'];
@@ -151,6 +152,7 @@ require '../includes/layout_header.php';
 </div>
 <div class="card p-4">
     <form method="post">
+        <?= csrf_field() ?>
         <div class="mb-3">
             <label class="form-label"><?= t('title') ?></label>
             <input type="text" name="titulo" value="<?= htmlspecialchars($doc['titulo']) ?>" class="form-control" required>

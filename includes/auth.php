@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config_ssl.php';
 require_once __DIR__ . '/pdo_factory.php';
+require_once __DIR__ . '/csrf.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();

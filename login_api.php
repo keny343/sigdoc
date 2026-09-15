@@ -10,6 +10,7 @@ $erro = '';
 $etapa = 'login';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_require();
     if (isset($_POST['etapa']) && $_POST['etapa'] === '2fa') {
         // Verificação do código 2FA
         $codigo_digitado = $_POST['codigo_2fa'];
@@ -65,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
         <?php if ($etapa === '2fa'): ?>
             <form method="post">
+                <?= csrf_field() ?>
                 <input type="hidden" name="etapa" value="2fa">
                 <div class="mb-3">
                     <label class="form-label">Código de Verificação (enviado para seu e-mail)</label>
@@ -74,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
         <?php else: ?>
             <form method="post">
+                <?= csrf_field() ?>
                 <div class="mb-3">
                     <label class="form-label">E-mail</label>
                     <input type="email" name="email" class="form-control" required autofocus>

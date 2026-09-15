@@ -7,6 +7,7 @@ if (!is_logged_in() || !is_admin()) {
 }
 $sucesso = false;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_require();
     $nome = $_POST['nome'];
     $email = $_POST['email'];
     $senha = password_hash($_POST['senha'], PASSWORD_DEFAULT);
@@ -43,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="alert alert-success">Usuário cadastrado com sucesso!</div>
     <?php endif; ?>
     <form method="post">
+        <?= csrf_field() ?>
         <div class="mb-3">
             <label class="form-label">Nome</label>
             <input type="text" name="nome" class="form-control" required>

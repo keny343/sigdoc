@@ -67,6 +67,7 @@ if (
 
 // Trata o envio do formulário de confirmação
 if ($pode_confirmar && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar_recebimento'])) {
+    csrf_require();
     registrar_movimentacao(
         $documento_id, 
         $_SESSION['usuario_id'], 
@@ -99,6 +100,7 @@ require '../includes/layout_header.php';
 <div class="card p-4">
     <?php if ($pode_confirmar): ?>
     <form method="post" class="mb-3">
+        <?= csrf_field() ?>
         <button type="submit" name="confirmar_recebimento" class="btn btn-success">
             Confirmar Recebimento
         </button>

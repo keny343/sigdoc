@@ -76,6 +76,7 @@ try {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_require();
     if (isset($_POST['ativar_2fa'])) {
         try {
             // Verificar se a coluna data_ativacao_2fa existe
@@ -177,6 +178,7 @@ require '../includes/layout_header.php';
                         </div>
                         
                         <form method="post">
+                            <?= csrf_field() ?>
                             <button type="submit" name="ativar_2fa" class="btn btn-primary">Ativar 2FA por email</button>
                         </form>
                         
@@ -194,6 +196,7 @@ require '../includes/layout_header.php';
                             <div class="card-body">
                                 <p class="text-muted small">Remove a camada extra de segurança.</p>
                                 <form method="post">
+                                    <?= csrf_field() ?>
                                     <button type="submit" name="desativar_2fa" class="btn btn-outline-secondary">Desactivar 2FA</button>
                                 </form>
                             </div>

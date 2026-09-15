@@ -9,6 +9,7 @@ if (!is_logged_in() || !is_admin()) {
 
 // Adicionar webhook
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['url'], $_POST['evento'])) {
+    csrf_require();
     $url = trim($_POST['url']);
     $evento = trim($_POST['evento']);
     $token = trim($_POST['token'] ?? '');
@@ -19,7 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['url'], $_POST['evento
     }
 }
 // Editar token
-if (isset($_POST['edit_token_id'], $_POST['edit_token_value'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_token_id'], $_POST['edit_token_value'])) {
+    csrf_require();
     $id = (int)$_POST['edit_token_id'];
     $token = trim($_POST['edit_token_value']);
     $stmt = $pdo->prepare('UPDATE webhooks SET token = ? WHERE id = ?');
@@ -64,6 +66,7 @@ $webhooks = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="alert alert-success"> <?= htmlspecialchars($msg) ?> </div>
     <?php endif; ?>
     <form method="post" class="row g-3 mb-4 card card-body">
+        <?= csrf_field() ?>
         <div class="col-md-4">
             <input type="url" name="url" class="form-control" placeholder="URL do Webhook" required>
         </div>
@@ -104,6 +107,7 @@ $webhooks = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </td>
                         <td>
                             <form method="post" class="d-flex align-items-center gap-2 mb-0">
+                                <?= csrf_field() ?>
                                 <input type="hidden" name="edit_token_id" value="<?= $wh['id'] ?>">
                                 <input type="text" name="edit_token_value" value="<?= htmlspecialchars($wh['token'] ?? '') ?>" class="form-control form-control-sm" style="max-width:120px;">
                                 <button type="submit" class="btn btn-sm btn-secondary">Salvar</button>

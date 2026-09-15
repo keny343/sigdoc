@@ -190,8 +190,9 @@ Live: [sigdoc-1fsj.onrender.com](https://sigdoc-1fsj.onrender.com/)
 
 ## Roadmap
 
-- [ ] CSRF tokens on forms (**P0**)
+- [x] CSRF tokens on forms (**P0**)
 - [ ] Rate limiting on login and 2FA (**P0**)
+- [ ] Convert remaining GET mutations (delete / webhook toggle) to POST + CSRF
 - [ ] Enforce `exigir_permissao()` across UI pages
 - [ ] Full user admin (list/edit/disable)
 - [ ] Replace static API bearer list with JWT / per-user tokens only

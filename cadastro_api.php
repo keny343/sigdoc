@@ -6,6 +6,7 @@ $sucesso = '';
 $etapa = 'form';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_require();
     if (isset($_POST['etapa']) && $_POST['etapa'] === '2fa') {
         // Etapa de verificação do código 2FA
         $nome = $_POST['nome'];
@@ -86,6 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="login_api.php" class="btn btn-primary w-100 mt-3">Ir para Login</a>
         <?php elseif ($etapa === '2fa'): ?>
             <form method="post">
+                <?= csrf_field() ?>
                 <input type="hidden" name="etapa" value="2fa">
                 <input type="hidden" name="nome" value="<?= htmlspecialchars($_SESSION['cadastro_2fa_nome']) ?>">
                 <input type="hidden" name="email" value="<?= htmlspecialchars($_SESSION['cadastro_2fa_email']) ?>">
@@ -99,6 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="login_api.php" class="btn btn-link mt-3">Já tem cadastro? Faça login</a>
         <?php else: ?>
             <form method="post">
+                <?= csrf_field() ?>
                 <div class="mb-3">
                     <label class="form-label">Nome</label>
                     <input type="text" name="nome" class="form-control" required>
