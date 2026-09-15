@@ -97,44 +97,28 @@ $stmt = $pdo->prepare("SELECT * FROM documento_versoes WHERE documento_id = ? OR
 $stmt->execute([$id]);
 $versoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-<!DOCTYPE html>
-<html lang="<?= get_lang() ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= t('view_document') ?> - SIGDoc</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link href="../includes/style.css" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/file-earmark-text.svg">
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="listar.php">SIGDoc</a>
-    <div class="d-flex align-items-center">
-      <a href="listar.php" class="btn btn-outline-light me-2"><?= t('back') ?></a>
-      <?php if (is_admin() || is_gestor() || (is_colaborador() && $documento['usuario_id'] == $_SESSION['usuario_id'])): ?>
-        <a href="editar.php?id=<?= $id ?>" class="btn btn-warning me-2"><?= t('edit') ?></a>
-      <?php endif; ?>
-      <a href="versoes.php?id=<?= $id ?>" class="btn btn-info me-2"><?= t('versions') ?></a>
-      <a href="../auth/logout.php" class="btn btn-danger"><?= t('logout') ?></a>
-      <form method="get" class="d-flex align-items-center me-2" style="margin: 0;">
-        <select name="lang" onchange="this.form.submit()" class="form-select form-select-sm" style="width: auto;">
-          <option value="pt"<?= (get_lang() == 'pt') ? ' selected' : '' ?>>🇧🇷 PT</option>
-          <option value="en"<?= (get_lang() == 'en') ? ' selected' : '' ?>>🇺🇸 EN</option>
-        </select>
-      </form>
-    </div>
-  </div>
-</nav>
+<?php
+$sigdoc_base = '../';
+$page_title = t('view_document');
+$sigdoc_active = 'documentos';
+ob_start();
+?>
+<a href="listar.php" class="btn btn-outline-primary btn-sm"><?= t('back') ?></a>
+<?php if (is_admin() || is_gestor() || (is_colaborador() && $documento['usuario_id'] == $_SESSION['usuario_id'])): ?>
+<a href="editar.php?id=<?= (int) $id ?>" class="btn btn-outline-primary btn-sm"><?= t('edit') ?></a>
+<?php endif; ?>
+<a href="versoes.php?id=<?= (int) $id ?>" class="btn btn-outline-secondary btn-sm"><?= t('versions') ?></a>
+<?php
+$sigdoc_top_actions = ob_get_clean();
+require_once '../includes/theme_config.php';
+require '../includes/layout_header.php';
+?>
 
-<div class="container">
-    <div class="row">
+<div class="row g-4">
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3><?= htmlspecialchars($documento['titulo']) ?></h3>
+                    <h3 class="mb-0" style="font-size:var(--text-md)"><?= htmlspecialchars($documento['titulo']) ?></h3>
                     <span class="badge bg-<?= $documento['categoria_acesso'] === 'publico' ? 'success' : ($documento['categoria_acesso'] === 'privado' ? 'warning' : ($documento['categoria_acesso'] === 'confidencial' ? 'danger' : 'dark')) ?>">
                         <?= t($documento['categoria_acesso']) ?>
                     </span>
@@ -244,8 +228,6 @@ $versoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
             <?php endif; ?>
         </div>
-    </div>
 </div>
+<?php require '../includes/layout_footer.php'; ?>
 
-</body>
-</html>

@@ -77,30 +77,26 @@ if ($pode_confirmar && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['co
     exit;
 }
 ?>
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Histórico de Movimentação</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link href="../includes/style.css" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/file-earmark-text.svg">
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="listar.php">SIGDoc</a>
-    <div class="d-flex">
-      <a href="listar.php" class="btn btn-outline-light me-2">Voltar</a>
-      <a href="../auth/logout.php" class="btn btn-danger">Sair</a>
-    </div>
+<?php
+require_once '../includes/lang.php';
+$sigdoc_base = '../';
+$page_title = 'Histórico de Movimentação';
+$sigdoc_active = 'documentos';
+ob_start();
+?>
+<a href="visualizar.php?id=<?= (int) $documento_id ?>" class="btn btn-outline-primary btn-sm"><?= t('back') ?></a>
+<?php
+$sigdoc_top_actions = ob_get_clean();
+require_once '../includes/theme_config.php';
+require '../includes/layout_header.php';
+?>
+<div class="page-header">
+  <div>
+    <h2>Histórico de Movimentação</h2>
+    <p class="page-sub">Documento #<?= htmlspecialchars((string) $documento_id) ?></p>
   </div>
-</nav>
-<div class="container card p-4">
-    <h2 class="mb-4">Histórico de Movimentação do Documento #<?= htmlspecialchars($documento_id) ?></h2>
-
+</div>
+<div class="card p-4">
     <?php if ($pode_confirmar): ?>
     <form method="post" class="mb-3">
         <button type="submit" name="confirmar_recebimento" class="btn btn-success">
@@ -111,7 +107,7 @@ if ($pode_confirmar && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['co
 
     <div class="table-responsive">
     <table class="table table-striped table-hover align-middle">
-        <thead class="table-primary">
+        <thead>
         <tr>
             <th>Data</th>
             <th>Usuário</th>
@@ -136,24 +132,5 @@ if ($pode_confirmar && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['co
     </table>
     </div>
 </div>
-<footer class="text-center mt-4">
-  <span>Desenvolvido em 2025</span>
-</footer>
+<?php require '../includes/layout_footer.php'; ?>
 
-<!-- Botão Dark Mode -->
-<button id="toggle-dark" class="btn btn-secondary position-fixed bottom-0 end-0 m-3" style="z-index:9999">
-    🌙 Alternar Dark Mode
-</button>
-<script>
-  function toggleDarkMode() {
-    document.body.classList.toggle('bg-dark');
-    document.body.classList.toggle('text-light');
-    localStorage.setItem('darkmode', document.body.classList.contains('bg-dark'));
-  }
-  document.getElementById('toggle-dark').onclick = toggleDarkMode;
-  if(localStorage.getItem('darkmode') === 'true') {
-    document.body.classList.add('bg-dark', 'text-light');
-  }
-</script>
-</body>
-</html>

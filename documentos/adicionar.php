@@ -131,36 +131,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="<?= get_lang() ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= t('new_document') ?> - SIGDoc</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link href="../includes/style.css" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/file-earmark-text.svg">
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="listar.php">SIGDoc</a>
-    <div class="d-flex align-items-center">
-      <a href="listar.php" class="btn btn-outline-light me-2"><?= t('back') ?></a>
-      <a href="../auth/logout.php" class="btn btn-danger"><?= t('logout') ?></a>
-      <form method="get" class="d-flex align-items-center me-2" style="margin: 0;">
-        <select name="lang" onchange="this.form.submit()" class="form-select form-select-sm" style="width: auto;">
-          <option value="pt"<?= (get_lang() == 'pt') ? ' selected' : '' ?>>🇧🇷 PT</option>
-          <option value="en"<?= (get_lang() == 'en') ? ' selected' : '' ?>>🇺🇸 EN</option>
-        </select>
-      </form>
-    </div>
+<?php
+$sigdoc_base = '../';
+$page_title = t('new_document');
+$sigdoc_active = 'documentos';
+ob_start();
+?>
+<a href="listar.php" class="btn btn-outline-primary btn-sm"><?= t('back') ?></a>
+<?php
+$sigdoc_top_actions = ob_get_clean();
+require_once '../includes/theme_config.php';
+require '../includes/layout_header.php';
+?>
+<div class="page-header">
+  <div>
+    <h2><?= t('new_document') ?></h2>
+    <p class="page-sub">Metadados, classificação e ficheiro</p>
   </div>
-</nav>
-<div class="container card p-4">
-    <h2 class="mb-4"><?= t('new_document') ?></h2>
-    <?php if (isset($erro)) echo "<div class='alert alert-danger'>$erro</div>"; ?>
+</div>
+<div class="card p-4">
+    <?php if (isset($erro)) echo "<div class='alert alert-danger'>" . htmlspecialchars($erro) . "</div>"; ?>
     <form method="post" enctype="multipart/form-data">
         <div class="mb-3">
             <label class="form-label"><?= t('title') ?></label>
@@ -232,9 +222,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button type="submit" class="btn btn-primary"><?= t('save') ?></button>
     </form>
 </div>
-<footer>
-  <span><?= t('developed_in') ?> 2025</span>
-</footer>
+<?php
+ob_start();
+?>
 <script>
   (function() {
     const statusEl = document.getElementById('geo_status');
@@ -267,5 +257,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
   })();
 </script>
-</body>
-</html>
+<?php
+$sigdoc_extra_scripts = ob_get_clean();
+require '../includes/layout_footer.php';
+?>

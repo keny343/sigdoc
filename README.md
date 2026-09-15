@@ -43,16 +43,22 @@ A web platform with:
 
 Ready to redeploy on any **PHP + MySQL** host (InfinityFree, shared hosting, or VPS).
 
-1. Upload project files  
-2. Upload `includes/config.local.php` separately (never commit)  
-3. Writable `uploads/`, `logs/`, `backups/`  
-4. Open `/auth/login.php`
+### Redeploy checklist
+
+1. Create MySQL database + user on the host  
+2. Import schema/data from your dump (see [`docs/DATABASE.md`](./docs/DATABASE.md))  
+3. Upload project files (exclude `.git`, local secrets, and large junk)  
+4. Copy `includes/config.example.php` → `includes/config.local.php` **on the server only** and fill MySQL, SMTP, API tokens  
+5. **Rotate** any credentials that were previously committed or leaked  
+6. Ensure `uploads/`, `logs/`, and `backups/` are writable by PHP  
+7. Point the domain/document root at the project folder  
+8. Open `/auth/login.php` and verify: login → painel → documentos → mapa → 2FA flow  
 
 Until redeployed, run locally — [`docs/INSTALLATION.md`](./docs/INSTALLATION.md).
 
 ### UI refresh
 
-Sidebar product shell, slate + teal tokens, dense KPIs/tables, institutional login — same craft as Mara & Lu admin, distinct SIGDoc brand.
+Sidebar product shell, slate + teal tokens, dense KPIs/tables, institutional login, and document CRUD pages (add/edit/view/versions/history) on the shared layout — same craft as Mara & Lu admin, distinct SIGDoc brand.
 
 ## Architecture
 

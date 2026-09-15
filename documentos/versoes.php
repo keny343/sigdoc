@@ -138,49 +138,32 @@ $stmt = $pdo->prepare("SELECT dv.*, u.nome AS usuario_nome FROM documento_versoe
 $stmt->execute([$documento_id]);
 $versoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+<?php
+$sigdoc_base = '../';
+$page_title = t('document_versions');
+$sigdoc_active = 'documentos';
+ob_start();
+?>
+<a href="visualizar.php?id=<?= (int) $documento_id ?>" class="btn btn-outline-primary btn-sm"><?= t('view_document') ?></a>
+<a href="listar.php" class="btn btn-outline-secondary btn-sm"><?= t('documents') ?></a>
+<?php
+$sigdoc_top_actions = ob_get_clean();
+require_once '../includes/theme_config.php';
+require '../includes/layout_header.php';
+?>
 
-<!DOCTYPE html>
-<html lang="<?= get_lang() ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= t('document_versions') ?> - SIGDoc</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link href="../includes/style.css" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/file-earmark-text.svg">
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="listar.php">SIGDoc</a>
-    <div class="d-flex align-items-center">
-      <a href="listar.php" class="btn btn-outline-light me-2"><?= t('documents') ?></a>
-      <a href="../painel.php" class="btn btn-outline-light me-2"><?= t('dashboard') ?></a>
-      <a href="../auth/logout.php" class="btn btn-danger"><?= t('logout') ?></a>
-      <form method="get" class="d-flex align-items-center me-2" style="margin: 0;">
-        <select name="lang" onchange="this.form.submit()" class="form-select form-select-sm" style="width: auto;">
-          <option value="pt"<?= (get_lang() == 'pt') ? ' selected' : '' ?>>🇧🇷 PT</option>
-          <option value="en"<?= (get_lang() == 'en') ? ' selected' : '' ?>>🇺🇸 EN</option>
-        </select>
-      </form>
-    </div>
-  </div>
-</nav>
-
-<div class="container">
-    <div class="row">
+<div class="row g-4">
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h4><?= t('document_versions') ?>: <?= htmlspecialchars($documento['titulo']) ?></h4>
+                    <h4 class="mb-0" style="font-size:var(--text-md)"><?= t('document_versions') ?>: <?= htmlspecialchars($documento['titulo']) ?></h4>
                 </div>
                 <div class="card-body">
                     <?php if (isset($sucesso)): ?>
-                        <div class="alert alert-success"><?= $sucesso ?></div>
+                        <div class="alert alert-success"><?= htmlspecialchars($sucesso) ?></div>
                     <?php endif; ?>
                     <?php if (isset($erro)): ?>
-                        <div class="alert alert-danger"><?= $erro ?></div>
+                        <div class="alert alert-danger"><?= htmlspecialchars($erro) ?></div>
                     <?php endif; ?>
                     
                     <div class="table-responsive">
@@ -234,7 +217,7 @@ $versoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-                    <h5><?= t('upload_new_version') ?></h5>
+                    <h5 class="mb-0" style="font-size:var(--text-md)"><?= t('upload_new_version') ?></h5>
                 </div>
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data">
@@ -255,7 +238,7 @@ $versoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             <div class="card mt-3">
                 <div class="card-header">
-                    <h5><?= t('document_information') ?></h5>
+                    <h5 class="mb-0" style="font-size:var(--text-md)"><?= t('document_information') ?></h5>
                 </div>
                 <div class="card-body">
                     <p><strong><?= t('title') ?>:</strong> <?= htmlspecialchars($documento['titulo']) ?></p>
@@ -267,11 +250,6 @@ $versoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
         </div>
-    </div>
 </div>
 
-<footer>
-  <span><?= t('developed_in') ?> 2025</span>
-</footer>
-</body>
-</html> 
+<?php require '../includes/layout_footer.php'; ?>

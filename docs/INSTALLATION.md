@@ -65,6 +65,8 @@ Follow `INSTRUCOES_UPLOAD.md`, and:
 - [ ] Login (`auth/login.php`)
 - [ ] Painel KPIs + charts
 - [ ] Lista de documentos
+- [ ] Adicionar / editar / visualizar documento
+- [ ] Versões e histórico de movimentação
 - [ ] Mapa
 - [ ] 2FA (SMTP configurado)
 - [ ] Export CSV
