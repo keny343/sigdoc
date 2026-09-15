@@ -1,75 +1,53 @@
 <?php
-// Carregar configurações de segurança SSL/HTTPS
+/**
+ * Auth helpers + single shared PDO (Aiven TLS via pdo_factory).
+ * PHPMailer is loaded lazily only when sending 2FA email.
+ */
+declare(strict_types=1);
+
 require_once __DIR__ . '/../config_ssl.php';
+require_once __DIR__ . '/pdo_factory.php';
 
-session_start();
-
-// Importar PHPMailer
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-// Carrega o autoloader do Composer (PHPMailer)
-require_once __DIR__ . '/../vendor/autoload.php';
-
-// Carregar configurações de email
-require_once __DIR__ . '/../config_email.php';
-require_once __DIR__ . '/config.php';
-
-$host = sigdoc_config('db.host');
-$dbname = sigdoc_config('db.name');
-$username = sigdoc_config('db.user');
-$password = sigdoc_config('db.pass');
-$port = (int) sigdoc_config('db.port', 3306);
-$charset = sigdoc_config('db.charset', 'utf8mb4');
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 try {
-    $pdo = new PDO(
-        "mysql:host=$host;port=$port;dbname=$dbname;charset=$charset",
-        $username,
-        $password
-    );
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    $pdo = sigdoc_pdo();
 } catch (PDOException $e) {
     die('Erro na conexão com a base de dados.');
 }
 
-// Função para verificar se o usuário está logado
-function is_logged_in()
+function is_logged_in(): bool
 {
     return isset($_SESSION['usuario_id']);
 }
 
-// Função para verificar se é administrador
-function is_admin()
+function is_admin(): bool
 {
-    return isset($_SESSION['perfil']) && in_array($_SESSION['perfil'], ['admin', 'administrador']);
+    return isset($_SESSION['perfil']) && in_array($_SESSION['perfil'], ['admin', 'administrador'], true);
 }
 
-// Função para verificar se é gestor
-function is_gestor()
+function is_gestor(): bool
 {
-    return isset($_SESSION['perfil']) && in_array($_SESSION['perfil'], ['gestor']);
+    return isset($_SESSION['perfil']) && $_SESSION['perfil'] === 'gestor';
 }
 
-// Função para verificar se é colaborador
-function is_colaborador()
+function is_colaborador(): bool
 {
-    return isset($_SESSION['perfil']) && in_array($_SESSION['perfil'], ['colaborador']);
+    return isset($_SESSION['perfil']) && $_SESSION['perfil'] === 'colaborador';
 }
 
-// Função para verificar se é visitante
-function is_visitante()
+function is_visitante(): bool
 {
-    return isset($_SESSION['perfil']) && in_array($_SESSION['perfil'], ['visitante']);
+    return isset($_SESSION['perfil']) && $_SESSION['perfil'] === 'visitante';
 }
 
-// Função de login
-function login($email, $senha)
+function login(string $email, string $senha): bool
 {
     global $pdo;
 
-    $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE email = ?");
+    $stmt = $pdo->prepare('SELECT * FROM usuarios WHERE email = ? LIMIT 1');
     $stmt->execute([$email]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -78,14 +56,10 @@ function login($email, $senha)
         $_SESSION['usuario_email'] = $usuario['email'];
         $_SESSION['usuario_nome'] = $usuario['nome'];
         $_SESSION['perfil'] = $usuario['perfil'];
-
-        // Limpar cache de permissões ao logar
         unset($_SESSION['permissoes_cache']);
 
-        // Verificar se o usuário tem 2FA ativado
-        if ($usuario['dois_fatores_ativado']) {
+        if (!empty($usuario['dois_fatores_ativado'])) {
             $_SESSION['aguardando_2fa'] = true;
-            return true;
         }
 
         return true;
@@ -94,37 +68,37 @@ function login($email, $senha)
     return false;
 }
 
-// Função de logout
-function logout()
+function logout(): void
 {
-    $_SESSION = array();
+    $_SESSION = [];
 
-    if (ini_get("session.use_cookies")) {
+    if (ini_get('session.use_cookies')) {
         $params = session_get_cookie_params();
         setcookie(
             session_name(),
             '',
             time() - 42000,
-            $params["path"],
-            $params["domain"],
-            $params["secure"],
-            $params["httponly"]
+            $params['path'],
+            $params['domain'],
+            (bool) $params['secure'],
+            (bool) $params['httponly']
         );
     }
 
     session_destroy();
 }
 
-// Função para gerar código 2FA por email
-function gerar_codigo_2fa_email()
+function gerar_codigo_2fa_email(): string
 {
-    return str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+    return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 }
 
-// Função para enviar código 2FA por email
-function enviar_codigo_2fa_email($email_destino, $nome_destino, $codigo)
+function enviar_codigo_2fa_email(string $email_destino, string $nome_destino, string $codigo): bool
 {
-    $mail = new PHPMailer(true);
+    require_once __DIR__ . '/../vendor/autoload.php';
+    require_once __DIR__ . '/../config_email.php';
+
+    $mail = new PHPMailer\PHPMailer\PHPMailer(true);
 
     try {
         $mail->isSMTP();
@@ -140,112 +114,101 @@ function enviar_codigo_2fa_email($email_destino, $nome_destino, $codigo)
 
         $mail->isHTML(true);
         $mail->Subject = 'Código de Verificação 2FA - SIGDoc';
-        $mail->Body = "
-        <html>
-        <body>
-            <h2>🔐 Código de Verificação 2FA</h2>
-            <p>Olá <strong>$nome_destino</strong>,</p>
+        $mail->Body = '
+        <html><body>
+            <h2>Código de Verificação 2FA</h2>
+            <p>Olá <strong>' . htmlspecialchars($nome_destino, ENT_QUOTES, 'UTF-8') . '</strong>,</p>
             <p>Seu código de verificação para acessar o SIGDoc é:</p>
-            <div style='background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; color: #007bff; border-radius: 5px; margin: 20px 0;'>
-                <strong>$codigo</strong>
+            <div style="background:#f8f9fa;padding:20px;text-align:center;font-size:24px;font-weight:bold;color:#007bff;border-radius:5px;margin:20px 0;">
+                <strong>' . htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8') . '</strong>
             </div>
             <p><strong>Este código expira em 10 minutos.</strong></p>
-            <p>Se você não solicitou este código, ignore este e-mail.</p>
-            <hr>
-            <p><small>Sistema de Gestão Documental - SIGDoc</small></p>
-        </body>
-        </html>";
+        </body></html>';
 
         $mail->send();
         return true;
-    } catch (Exception $e) {
-        error_log('Erro ao enviar e-mail 2FA: ' . $mail->ErrorInfo);
+    } catch (Throwable $e) {
+        error_log('Erro ao enviar e-mail 2FA: ' . $e->getMessage());
         return false;
     }
 }
 
-function verificar_codigo_2fa_email($codigo_digitado, $codigo_armazenado, $data_envio)
+function verificar_codigo_2fa_email(string $codigo_digitado, string $codigo_armazenado, string $data_envio): bool
 {
     $tempo_expiracao = 600;
-    $tempo_atual = time();
-    $tempo_envio = strtotime($data_envio);
-
-    if (($tempo_atual - $tempo_envio) > $tempo_expiracao) {
+    if ((time() - strtotime($data_envio)) > $tempo_expiracao) {
         return false;
     }
-
     return $codigo_digitado === $codigo_armazenado;
 }
 
-function documento_requer_2fa($categoria_acesso)
+function documento_requer_2fa(string $categoria_acesso): bool
 {
-    return in_array($categoria_acesso, ['confidencial', 'secreto']);
+    return in_array($categoria_acesso, ['confidencial', 'secreto'], true);
 }
 
-function pode_acessar_documento_sigiloso($categoria_acesso)
+function pode_acessar_documento_sigiloso(string $categoria_acesso): bool
 {
     if (!is_logged_in()) {
         return false;
     }
-
     if (!documento_requer_2fa($categoria_acesso)) {
         return true;
     }
-
-    if (!isset($_SESSION['2fa_verificado']) || !$_SESSION['2fa_verificado']) {
+    if (empty($_SESSION['2fa_verificado'])) {
         return false;
     }
-
-    switch ($categoria_acesso) {
-        case 'confidencial':
-            return is_gestor() || is_admin();
-        case 'secreto':
-            return is_admin();
-        default:
-            return true;
-    }
+    return match ($categoria_acesso) {
+        'confidencial' => is_gestor() || is_admin(),
+        'secreto' => is_admin(),
+        default => true,
+    };
 }
 
-function registrar_tentativa_acesso_sigiloso($usuario_id, $documento_id, $sucesso)
+function registrar_tentativa_acesso_sigiloso($usuario_id, $documento_id, bool $sucesso): void
 {
     global $pdo;
-
-    $stmt = $pdo->prepare("INSERT INTO tentativas_acesso_sigiloso (usuario_id, documento_id, sucesso, data_tentativa, ip) VALUES (?, ?, ?, NOW(), ?)");
+    $stmt = $pdo->prepare(
+        'INSERT INTO tentativas_acesso_sigiloso (usuario_id, documento_id, sucesso, data_tentativa, ip) VALUES (?, ?, ?, NOW(), ?)'
+    );
     $stmt->execute([$usuario_id, $documento_id, $sucesso ? 1 : 0, $_SERVER['REMOTE_ADDR'] ?? '']);
 }
 
-function precisa_completar_2fa()
+function precisa_completar_2fa(): bool
 {
-    return isset($_SESSION['aguardando_2fa']) && $_SESSION['aguardando_2fa'];
+    return !empty($_SESSION['aguardando_2fa']);
 }
 
-function marcar_2fa_verificado()
+function marcar_2fa_verificado(): void
 {
     $_SESSION['aguardando_2fa'] = false;
     $_SESSION['2fa_verificado'] = true;
 }
 
-function gerar_e_enviar_codigo_2fa($usuario_id)
+function gerar_e_enviar_codigo_2fa($usuario_id): bool
 {
     global $pdo;
 
     $codigo = gerar_codigo_2fa_email();
     $data_envio = date('Y-m-d H:i:s');
 
-    $stmt = $pdo->prepare("UPDATE usuarios SET codigo_2fa = ?, data_codigo_2fa = ? WHERE id = ?");
+    $stmt = $pdo->prepare('UPDATE usuarios SET codigo_2fa = ?, data_codigo_2fa = ? WHERE id = ?');
     $stmt->execute([$codigo, $data_envio, $usuario_id]);
 
-    $stmt = $pdo->prepare("SELECT email, nome FROM usuarios WHERE id = ?");
+    $stmt = $pdo->prepare('SELECT email, nome FROM usuarios WHERE id = ?');
     $stmt->execute([$usuario_id]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$usuario) {
+        return false;
+    }
 
     return enviar_codigo_2fa_email($usuario['email'], $usuario['nome'], $codigo);
 }
 
-function login_api($email, $senha)
+function login_api(string $email, string $senha): bool
 {
     global $pdo;
-    $stmt = $pdo->prepare("SELECT * FROM usuariosapi WHERE email = ?");
+    $stmt = $pdo->prepare('SELECT * FROM usuariosapi WHERE email = ? LIMIT 1');
     $stmt->execute([$email]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($usuario && password_verify($senha, $usuario['senha'])) {
@@ -256,68 +219,55 @@ function login_api($email, $senha)
     }
     return false;
 }
-function is_logged_in_api()
+
+function is_logged_in_api(): bool
 {
     return isset($_SESSION['usuarioapi_id']);
 }
+
 function get_usuarioapi_id()
 {
     return $_SESSION['usuarioapi_id'] ?? null;
 }
 
-// --- SISTEMA RBAC (CONTROLE DE ACESSO BASEADO EM GRUPOS) ---
-
-function permissoes_do_usuario()
+function permissoes_do_usuario(): array
 {
     global $pdo;
 
     if (!is_logged_in()) {
         return [];
     }
-
-    // Cache de sessão para evitar query a cada chamada
     if (isset($_SESSION['permissoes_cache']) && is_array($_SESSION['permissoes_cache'])) {
         return $_SESSION['permissoes_cache'];
     }
 
-    $usuario_id = $_SESSION['usuario_id'];
-
     try {
-        // Query otimizada para buscar todas as permissões de todos os grupos do usuário
-        $sql = "SELECT DISTINCT p.chave
+        $sql = 'SELECT DISTINCT p.chave
                 FROM usuario_grupos ug
                 JOIN grupo_permissoes gp ON gp.grupo_id = ug.grupo_id
                 JOIN permissoes p ON p.id = gp.permissao_id
-                WHERE ug.usuario_id = ?";
-
+                WHERE ug.usuario_id = ?';
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$usuario_id]);
+        $stmt->execute([$_SESSION['usuario_id']]);
         $perms = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
         $_SESSION['permissoes_cache'] = $perms ?: [];
         return $_SESSION['permissoes_cache'];
-    } catch (Exception $e) {
-        // Em caso de erro (ex: tabelas ainda não existem), segura a sessão sem permissões
+    } catch (Throwable $e) {
         $_SESSION['permissoes_cache'] = [];
         return [];
     }
 }
 
-function pode($permissao_chave)
+function pode(string $permissao_chave): bool
 {
-    // 1. Superusuários (Admin) têm acesso irrestrito
     $perfil = $_SESSION['perfil'] ?? '';
-    // Mapeamento legado para garantir que admins continuem admins
     if ($perfil === 'admin' || $perfil === 'administrador') {
         return true;
     }
-
-    // 2. Verificar permissões granulares dos grupos
-    $perms = permissoes_do_usuario();
-    return in_array($permissao_chave, $perms, true);
+    return in_array($permissao_chave, permissoes_do_usuario(), true);
 }
 
-function exigir_permissao($permissao_chave)
+function exigir_permissao(string $permissao_chave): void
 {
     if (!is_logged_in()) {
         header('Location: ../auth/login.php');
@@ -325,13 +275,11 @@ function exigir_permissao($permissao_chave)
     }
     if (!pode($permissao_chave)) {
         http_response_code(403);
-        echo '<div style="font-family:sans-serif; text-align:center; padding:50px; background:#f8d7da; color:#721c24;">
-                <h1>⛔ Acesso Negado</h1>
+        echo '<div style="font-family:sans-serif;text-align:center;padding:50px;background:#f8d7da;color:#721c24;">
+                <h1>Acesso Negado</h1>
                 <p>Você não tem permissão para realizar esta ação.</p>
-                <p><strong>Permissão necessária:</strong> ' . htmlspecialchars($permissao_chave) . '</p>
-                <p style="margin-top:20px;"><a href="javascript:history.back()" style="color:#721c24; text-decoration:underline;">Voltar</a></p>
+                <p><strong>Permissão necessária:</strong> ' . htmlspecialchars($permissao_chave, ENT_QUOTES, 'UTF-8') . '</p>
               </div>';
         exit;
     }
 }
-?>
