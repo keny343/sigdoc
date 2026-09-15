@@ -26,65 +26,43 @@ if (isset($_SESSION['usuario_nome']) && !isset($_SESSION['boas_vindas_exibida'])
     $_SESSION['boas_vindas_exibida'] = true;
 }
 ?>
-<!DOCTYPE html>
-<html lang="<?= get_lang() ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= t('documents') ?> - SIGDoc</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="../includes/style.css" rel="stylesheet">
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">SIGDoc</a>
-    <div class="d-flex align-items-center">
-      <a href="adicionar.php" class="btn btn-light me-2 <?php if(is_visitante()) echo 'd-none'; ?>"><?= t('new_document') ?></a>
-      <a href="../mapa.php" class="btn btn-outline-light me-2">Mapa</a>
-      <a href="../painel.php" class="btn btn-outline-light me-2"><?= t('management_panel') ?></a>
-      <?php if (is_logged_in() && is_admin()): ?>
-      <a href="../backup_system.php" class="btn btn-outline-info me-2">💾 Backup</a>
+<?php
+$sigdoc_base = '../';
+$page_title = t('documents');
+$sigdoc_active = 'documentos';
+ob_start();
+?>
+      <?php if (!is_visitante()): ?>
+      <a href="adicionar.php" class="btn btn-primary btn-sm"><?= t('new_document') ?></a>
       <?php endif; ?>
-      <a href="../auth/configurar_2fa.php" class="btn btn-outline-warning me-2">🔐 2FA</a>
-      <a href="../auth/logout.php" class="btn btn-danger"><?= t('logout') ?></a>
-      <form method="get" class="d-flex align-items-center me-2" style="margin: 0;">
-        <select name="lang" onchange="this.form.submit()" class="form-select form-select-sm" style="width: auto;">
-          <option value="pt"<?= (get_lang() == 'pt') ? ' selected' : '' ?>>🇧🇷 PT</option>
-          <option value="en"<?= (get_lang() == 'en') ? ' selected' : '' ?>>🇺🇸 EN</option>
-        </select>
-      </form>
-    </div>
-  </div>
-</nav>
+<?php
+$sigdoc_top_actions = ob_get_clean();
+require '../includes/theme_config.php';
+require '../includes/layout_header.php';
+?>
 
 <?php if ($mostrar_boas_vindas): ?>
-<div class="container mt-3">
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <div class="d-flex align-items-center">
-            <div class="me-3">
-                <i class="bi bi-person-check" style="font-size: 1.5rem;"></i>
-            </div>
-            <div>
-                <h5 class="alert-heading mb-1"><?= str_replace('{name}', htmlspecialchars($_SESSION['usuario_nome']), t('welcome_message')) ?></h5>
-                <p class="mb-0"><?= t('system_welcome') ?></p>
-            </div>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+  <strong><?= str_replace('{name}', htmlspecialchars($_SESSION['usuario_nome']), t('welcome_message')) ?></strong>
+  <div class="small"><?= t('system_welcome') ?></div>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 <?php endif; ?>
 
-<div class="container card p-4">
-    <h2 class="mb-4"><?= t('documents') ?></h2>
-    
+<div class="page-header">
+  <div>
+    <h2><?= t('documents') ?></h2>
+    <p class="page-sub">Filtros, classificação e tramitação</p>
+  </div>
+</div>
+
+<div class="card p-4 mb-4">
     <?php if (isset($_GET['erro'])): ?>
         <div class="alert alert-danger">
-            <i class="bi bi-exclamation-triangle"></i> <?= htmlspecialchars($_GET['erro']) ?>
+            <?= htmlspecialchars($_GET['erro']) ?>
         </div>
     <?php endif; ?>
-    <form method="get" class="row g-3 mb-4">
+    <form method="get" class="row g-3">
         <div class="col-md-2">
             <input type="text" name="busca" class="form-control" placeholder="<?= t('title') ?> <?= t('or') ?> <?= t('type') ?>" value="<?= htmlspecialchars($_GET['busca'] ?? '') ?>">
         </div>
@@ -345,10 +323,5 @@ $documentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
     <?php endif; ?>
 </div>
-<footer>
-  <span><?= t('developed_in') ?> 2025</span>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html> 
+<?php require '../includes/layout_footer.php'; ?>
+ 

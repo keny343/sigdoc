@@ -50,23 +50,24 @@ Open `http://localhost:8080`.
 
 **Option B — Apache/Nginx vhost** pointing at the project root (needed for nicer rewrites / `.htaccess`).
 
-## 5. Shared hosting (e.g. InfinityFree)
+## 5. Redeploy (shared hosting)
 
-Follow `INSTRUCOES_UPLOAD.md`, **and**:
+Follow `INSTRUCOES_UPLOAD.md`, and:
 
-1. Upload the project files
-2. Upload `includes/config.local.php` separately (not from a public gist)
+1. Upload the project files (including the new UI: `includes/style.css`, `layout_*.php`, `auth/login.php`)
+2. Upload `includes/config.local.php` separately
 3. Ensure `uploads/`, `logs/`, `backups/` are writable
-4. For PDF export, ensure FPDF is reachable (`vendor/fpdf/fpdf.php` — fix include path if needed)
+4. For PDF export, ensure FPDF is reachable (`vendor/fpdf/fpdf.php`)
+5. Smoke-test `/auth/login.php` → painel → documentos → mapa
 
 ## 6. Smoke test
 
-- [ ] Landing loads
-- [ ] Login works (restore `auth/login.php` if missing in your branch)
-- [ ] List documents
-- [ ] Open map page
+- [ ] Login (`auth/login.php`)
+- [ ] Painel KPIs + charts
+- [ ] Lista de documentos
+- [ ] Mapa
+- [ ] 2FA (SMTP configurado)
 - [ ] Export CSV
-- [ ] Enable 2FA and receive email code (SMTP configured)
 
 ## Troubleshooting
 

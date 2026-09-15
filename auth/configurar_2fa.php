@@ -1,11 +1,13 @@
 <?php
 // Habilitar exibição de erros para debug
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('log_errors', 1);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
 
 require_once '../includes/auth.php';
 require_once '../includes/db.php';
+require_once '../includes/lang.php';
+require_once '../includes/theme_config.php';
 
 if (!is_logged_in()) {
     header('Location: login.php');
@@ -130,36 +132,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Configurar 2FA - SIGDoc</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link href="../includes/style.css" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/file-earmark-text.svg">
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="../documentos/listar.php">SIGDoc</a>
-    <div class="d-flex">
-      <a href="../documentos/listar.php" class="btn btn-outline-light me-2">Documentos</a>
-      <a href="logout.php" class="btn btn-danger">Sair</a>
-    </div>
-  </div>
-</nav>
+<?php
+$sigdoc_base = '../';
+$page_title = 'Autenticação 2FA';
+$sigdoc_active = '2fa';
+require '../includes/layout_header.php';
+?>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="mb-0">Configurar Autenticação Multifator (2FA)</h3>
-                </div>
-                <div class="card-body">
+<div class="page-header">
+  <div>
+    <h2>Autenticação multifator</h2>
+    <p class="page-sub">Códigos por email para acesso sensível</p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">Configurar 2FA</div>
+      <div class="card-body p-4">
                     <?php if ($mensagem): ?>
                         <div class="alert alert-success"><?= htmlspecialchars($mensagem) ?></div>
                     <?php endif; ?>
@@ -169,81 +160,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endif; ?>
 
                     <?php if (!$usuario['dois_fatores_ativado']): ?>
-                        <!-- Configuração inicial do 2FA -->
                         <div class="alert alert-info">
-                            <h5>🔐 Por que usar 2FA?</h5>
-                            <p>A autenticação multifator adiciona uma camada extra de segurança ao seu acesso. 
-                            Você receberá um código por email sempre que fizer login, garantindo que apenas você 
-                            tenha acesso à sua conta.</p>
+                            <strong>Porquê usar 2FA?</strong>
+                            <p class="mb-0 mt-2">Adiciona uma verificação por email após o login e protege documentos classificados.</p>
                         </div>
                         
                         <div class="card mb-3">
-                            <div class="card-header">
-                                <h6>📧 Como Funciona o 2FA por Email</h6>
-                            </div>
+                            <div class="card-header">Como funciona</div>
                             <div class="card-body">
-                                <ol>
-                                    <li>Você faz login normalmente com email e senha</li>
-                                    <li>O sistema gera um código de 6 dígitos</li>
-                                    <li>O código é enviado para seu email cadastrado</li>
-                                    <li>Você digita o código recebido</li>
-                                    <li>O sistema verifica e permite acesso</li>
-                                    <li>O código expira em 10 minutos por segurança</li>
+                                <ol class="mb-0">
+                                    <li>Login com email e palavra-passe</li>
+                                    <li>Código de 6 dígitos enviado por email</li>
+                                    <li>Introduz o código (válido 10 minutos)</li>
                                 </ol>
                             </div>
                         </div>
                         
                         <form method="post">
-                            <button type="submit" name="ativar_2fa" class="btn btn-primary">
-                                <i class="bi bi-shield-lock"></i> Ativar 2FA por Email
-                            </button>
+                            <button type="submit" name="ativar_2fa" class="btn btn-primary">Ativar 2FA por email</button>
                         </form>
                         
                     <?php else: ?>
-                        <!-- 2FA já está ativado -->
                         <div class="alert alert-success">
-                            <h5>✅ 2FA Ativado</h5>
+                            <strong>2FA activo</strong>
                             <?php if (!empty($usuario['data_ativacao_2fa'])): ?>
-                                <p>Sua autenticação multifator está ativa desde <?= date('d/m/Y H:i', strtotime($usuario['data_ativacao_2fa'])) ?></p>
-                            <?php else: ?>
-                                <p>Sua autenticação multifator está ativa.</p>
+                                <p class="mb-1 mt-2">Desde <?= date('d/m/Y H:i', strtotime($usuario['data_ativacao_2fa'])) ?></p>
                             <?php endif; ?>
-                            <p><strong>Email cadastrado:</strong> <?= htmlspecialchars($usuario['email'] ?? 'N/A') ?></p>
+                            <p class="mb-0"><strong>Email:</strong> <?= htmlspecialchars($usuario['email'] ?? 'N/A') ?></p>
                         </div>
                         
-                        <div class="card mb-3">
-                            <div class="card-header">
-                                <h6>📋 Informações Importantes</h6>
-                            </div>
+                        <div class="card mb-3 border-warning">
+                            <div class="card-header">Desactivar 2FA</div>
                             <div class="card-body">
-                                <ul>
-                                    <li><strong>Códigos são enviados automaticamente</strong> quando você faz login</li>
-                                    <li><strong>Códigos expiram em 10 minutos</strong> por segurança</li>
-                                    <li><strong>Verifique sua caixa de spam</strong> se não receber o email</li>
-                                    <li><strong>Documentos sigilosos</strong> requerem verificação 2FA</li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <!-- Desativar 2FA -->
-                        <div class="card border-warning">
-                            <div class="card-header bg-warning text-dark">
-                                <h6>⚠️ Desativar 2FA</h6>
-                            </div>
-                            <div class="card-body">
-                                <p class="text-muted">Atenção: Desativar o 2FA remove a camada extra de segurança da sua conta.</p>
+                                <p class="text-muted small">Remove a camada extra de segurança.</p>
                                 <form method="post">
-                                    <button type="submit" name="desativar_2fa" class="btn btn-warning">
-                                        <i class="bi bi-x-circle"></i> Desativar 2FA
-                                    </button>
+                                    <button type="submit" name="desativar_2fa" class="btn btn-outline-secondary">Desactivar 2FA</button>
                                 </form>
                             </div>
                         </div>
                     <?php endif; ?>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+  </div>
 </div>
-</body>
-</html> 
+<?php require '../includes/layout_footer.php'; ?>
+ 

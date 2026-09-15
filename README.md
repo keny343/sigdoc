@@ -39,6 +39,21 @@ A web platform with:
 | Integration | REST API + webhooks |
 | i18n | Portuguese / English |
 
+## Live demo / hosting
+
+Ready to redeploy on any **PHP + MySQL** host (InfinityFree, shared hosting, or VPS).
+
+1. Upload project files  
+2. Upload `includes/config.local.php` separately (never commit)  
+3. Writable `uploads/`, `logs/`, `backups/`  
+4. Open `/auth/login.php`
+
+Until redeployed, run locally — [`docs/INSTALLATION.md`](./docs/INSTALLATION.md).
+
+### UI refresh
+
+Sidebar product shell, slate + teal tokens, dense KPIs/tables, institutional login — same craft as Mara & Lu admin, distinct SIGDoc brand.
+
 ## Architecture
 
 ```text
@@ -53,6 +68,7 @@ PHP application (sessions + RBAC helpers)
 ```
 
 Details: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
+
 
 ## Features
 
@@ -74,7 +90,7 @@ Details: [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
 - **Mail:** PHPMailer
 - **PDF:** FPDF
 - **Maps:** Leaflet (+ plugins)
-- **UI:** Bootstrap 5, custom CSS
+- **UI:** Bootstrap 5 + SIGDoc design system (`includes/style.css`, app shell)
 - **Frontend landing:** prebuilt React assets (`assets/`)
 - **i18n:** `includes/lang_*.php`
 
@@ -124,8 +140,8 @@ Add captures under [`screenshots/`](./screenshots/) (dashboard, documents list, 
 
 ## Challenges & learnings
 
-- Balancing classic PHP hosting (InfinityFree) with safer secret management
-- Document classification vs role permissions
+- Designing document classification and role checks on a classic PHP stack
+- Safer secret management (`config.local.php`) without depending on a live host
 - Spatial queries for map features
 - Dual surfaces: server-rendered PHP UI + SPA landing assets
 

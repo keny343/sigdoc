@@ -1,8 +1,7 @@
 <?php
-// Habilitar exibição de erros para debug (remover em produção)
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('log_errors', 1);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
 
 try {
     require_once 'includes/auth.php';
@@ -12,7 +11,7 @@ try {
     require_once 'includes/cache.php';
     require_once 'includes/lang.php';
 } catch (Exception $e) {
-    die("Erro ao carregar arquivos: " . $e->getMessage());
+    die('Erro ao carregar ficheiros.');
 }
 
 // Definir cookie de idioma se necessário (deve ser feito antes de qualquer saída)
@@ -152,60 +151,36 @@ try {
     error_log("Erro ao buscar documentos importantes: " . $e->getMessage());
 }
 ?>
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Painel Gerencial - SIGDoc</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="includes/style.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <?= generate_custom_css() ?>
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="documentos/listar.php">SIGDoc</a>
-    <div class="d-flex align-items-center">
-      <a href="documentos/listar.php" class="btn btn-outline-light me-2"><?php echo t('documents'); ?></a>
-      <a href="mapa.php" class="btn btn-outline-light me-2">Mapa</a>
-      <?php if (is_admin()): ?>
-        <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#modalCriarUsuario"><?php echo t('new_user'); ?></button>
+<?php
+$sigdoc_base = '';
+$page_title = t('management_panel');
+$sigdoc_active = 'painel';
+$sigdoc_extra_head = '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>';
+ob_start();
+?>
+      <?php if (!is_visitante()): ?>
+      <a href="documentos/adicionar.php" class="btn btn-primary btn-sm"><?= t('new_document') ?></a>
       <?php endif; ?>
-      <form method="get" class="d-flex align-items-center me-2" style="margin: 0;">
-        <select name="lang" onchange="this.form.submit()" class="form-select form-select-sm" style="width: auto;">
-          <option value="pt"<?= (get_lang() == 'pt') ? ' selected' : '' ?>>🇧🇷 PT</option>
-          <option value="en"<?= (get_lang() == 'en') ? ' selected' : '' ?>>🇺🇸 EN</option>
-        </select>
-      </form>
-      <a href="auth/logout.php" class="btn btn-danger"><?php echo t('logout'); ?></a>
-    </div>
-  </div>
-</nav>
+      <?php if (is_admin()): ?>
+      <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCriarUsuario"><?= t('new_user') ?></button>
+      <?php endif; ?>
+<?php
+$sigdoc_top_actions = ob_get_clean();
+require 'includes/layout_header.php';
+?>
 
 <?php if ($mostrar_boas_vindas): ?>
-<div class="container mt-3">
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <div class="d-flex align-items-center">
-            <div class="me-3">
-                <i class="bi bi-person-check" style="font-size: 1.5rem;"></i>
-            </div>
-            <div>
-                <h5 class="alert-heading mb-1"><?= str_replace('{name}', htmlspecialchars($_SESSION['usuario_nome']), t('welcome_message')) ?></h5>
-                <p class="mb-0"><?= t('system_welcome') ?></p>
-            </div>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+  <strong><?= str_replace('{name}', htmlspecialchars($_SESSION['usuario_nome']), t('welcome_message')) ?></strong>
+  <div class="small"><?= t('system_welcome') ?></div>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 <?php endif; ?>
 
 <?php if (is_admin()): ?>
 <!-- Modal de Cadastro de Usuário -->
 <div class="modal fade" id="modalCriarUsuario" tabindex="-1" aria-labelledby="modalCriarUsuarioLabel" aria-hidden="true">
-  <div class="modal-dialog modal-full-width modal-dialog-centered modal-dialog-scrollable">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
     <div class="modal-content">
       <form method="post" action="usuarios/adicionar.php">
         <div class="modal-header">
@@ -247,22 +222,9 @@ try {
               </div>
             </div>
           </div>
-          <div class="row">
-            <div class="col-12">
-              <div class="alert alert-info">
-                <strong><?= t('profile_information') ?></strong>
-                <ul class="mb-0 mt-2">
-                  <li><strong><?= t('administrator') ?>:</strong> <?= t('administrator_description') ?></li>
-                  <li><strong><?= t('manager') ?>:</strong> <?= t('manager_description') ?></li>
-                  <li><strong><?= t('collaborator') ?>:</strong> <?= t('collaborator_description') ?></li>
-                  <li><strong><?= t('visitor') ?>:</strong> <?= t('visitor_description') ?></li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= t('cancel') ?></button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?= t('cancel') ?></button>
           <button type="submit" class="btn btn-primary"><?= t('create_new_user') ?></button>
         </div>
       </form>
@@ -270,62 +232,49 @@ try {
   </div>
 </div>
 <?php endif; ?>
-<div class="container card p-4 fade-in">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">📊 <?= t('management_panel') ?></h2>
-        <div class="btn-group" role="group">
-            <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshStats()">
-                <i class="bi bi-arrow-clockwise"></i> <?= t('refresh') ?>
-            </button>
-            <div class="btn-group">
-              <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-download"></i> <?= t('export') ?>
-              </button>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="exportar_documentos.php?format=csv" target="_blank">CSV</a></li>
-                <li><a class="dropdown-item" href="exportar_documentos.php?format=pdf" target="_blank">PDF</a></li>
-              </ul>
-            </div>
-        </div>
+
+<div class="page-header">
+  <div>
+    <h2><?= t('management_panel') ?></h2>
+    <p class="page-sub">Visão geral de documentos, estados e auditoria</p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshStats()">
+      <i class="bi bi-arrow-clockwise"></i> <?= t('refresh') ?>
+    </button>
+    <div class="btn-group">
+      <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-download"></i> <?= t('export') ?>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="exportar_documentos.php?format=csv" target="_blank">CSV</a></li>
+        <li><a class="dropdown-item" href="exportar_documentos.php?format=pdf" target="_blank">PDF</a></li>
+      </ul>
     </div>
-    
-    <!-- Cards de Estatísticas -->
-    <div class="row mb-4">
-        <div class="col-md-3 col-sm-6 mb-3">
-            <?= generate_stat_card(t('total_documents'), $total, '📄', 'primary') ?>
-            </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <?= generate_stat_card(t('documents_this_month'), $no_mes, '📈', 'success') ?>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <?= generate_stat_card(t('active_users'), safeQuery($pdo, "SELECT COUNT(*) FROM usuarios", 0), '👥', 'info') ?>
-            </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <?= generate_stat_card(t('movements'), safeQuery($pdo, "SELECT COUNT(*) FROM movimentacao", 0), '🔄', 'warning') ?>
-        </div>
-    </div>
+  </div>
+</div>
+
+<div class="stats-grid mb-4">
+  <?= generate_stat_card(t('total_documents'), $total, '', 'brand') ?>
+  <?= generate_stat_card(t('documents_this_month'), $no_mes, '', 'sucesso') ?>
+  <?= generate_stat_card(t('active_users'), safeQuery($pdo, "SELECT COUNT(*) FROM usuarios", 0), '', 'info') ?>
+  <?= generate_stat_card(t('movements'), safeQuery($pdo, "SELECT COUNT(*) FROM movimentacao", 0), '', 'aviso') ?>
+</div>
+
     <?php if (count($alertas) > 0): ?>
-    <div class="alert alert-danger alert-theme slide-in">
-        <div class="d-flex align-items-center mb-2">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            <strong>⚠️ <?= t('attention') ?>! <?= t('documents') ?> <?= t('overdue') ?> <?= t('or') ?> <?= t('expires_soon') ?></strong>
-        </div>
-        <div class="row">
+    <div class="alert alert-danger mb-4">
+        <strong><?= t('attention') ?> — <?= t('documents') ?> <?= t('overdue') ?> / <?= t('expires_soon') ?></strong>
+        <div class="row mt-2">
             <?php foreach ($alertas as $a): ?>
             <div class="col-md-6 mb-2">
-                <div class="card border-danger">
-                    <div class="card-body py-2">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <a href="documentos/editar.php?id=<?= $a['id'] ?>" class="text-danger fw-bold text-decoration-none">
-                                    <?= htmlspecialchars($a['titulo']) ?>
-                                </a>
-                                <br>
-                                <small class="text-muted"><?= t('deadline') ?>: <?= date('d/m/Y', strtotime($a['prazo'])) ?></small>
-                            </div>
-                            <span class="badge bg-danger"><?= t('urgent') ?></span>
-                        </div>
+                <div class="d-flex justify-content-between align-items-center border rounded p-2 bg-white">
+                    <div>
+                        <a href="documentos/editar.php?id=<?= (int) $a['id'] ?>" class="fw-semibold text-decoration-none" style="color:var(--erro)">
+                            <?= htmlspecialchars($a['titulo']) ?>
+                        </a>
+                        <div class="small text-muted"><?= t('deadline') ?>: <?= date('d/m/Y', strtotime($a['prazo'])) ?></div>
                     </div>
+                    <span class="badge bg-danger"><?= t('urgent') ?></span>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -333,12 +282,12 @@ try {
     </div>
     <?php endif; ?>
     <?php if (is_admin()): ?>
-<div class="card mt-4">
-    <div class="card-header bg-secondary text-white"><?= t('audit') ?> <?= t('access_log') ?> (<?= t('last') ?> 20)</div>
+<div class="card mb-4">
+    <div class="card-header"><?= t('audit') ?> · <?= t('access_log') ?> (<?= t('last') ?> 20)</div>
     <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-sm table-striped mb-0">
-                <thead class="table-light">
+        <div class="table-responsive" style="border:none;border-radius:0">
+            <table class="table table-sm mb-0">
+                <thead>
                     <tr>
                         <th><?= t('user') ?></th>
                         <th><?= t('action') ?></th>
@@ -367,126 +316,65 @@ try {
     </div>
 </div>
 <?php endif; ?>
-    <div class="row">
+    <div class="row g-4">
         <div class="col-md-6">
-            <h5><?= t('documents_by_status') ?></h5>
-            <canvas id="estadoChart" width="400" height="200"></canvas>
+            <div class="card p-3 h-100">
+                <h5 class="mb-3" style="font-size:var(--text-sm);font-weight:650"><?= t('documents_by_status') ?></h5>
+                <canvas id="estadoChart" height="200"></canvas>
+            </div>
         </div>
         <div class="col-md-6">
-            <h5><?= t('documents_by_sector') ?></h5>
-            <canvas id="setorChart" width="400" height="200"></canvas>
+            <div class="card p-3 h-100">
+                <h5 class="mb-3" style="font-size:var(--text-sm);font-weight:650"><?= t('documents_by_sector') ?></h5>
+                <canvas id="setorChart" height="200"></canvas>
+            </div>
         </div>
     </div>
-</div>
-<footer>
-  <span><?= t('developed_in') ?> 2025</span>
-</footer>
+<?php
+ob_start();
+?>
 <script>
-// Funções JavaScript para interatividade
 function refreshStats() {
-    const btn = event.target;
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<span class="loading"></span> <?= t('updating') ?>...';
-    btn.disabled = true;
-    
-    setTimeout(() => {
-        location.reload();
-    }, 1000);
+    location.reload();
 }
-
-function exportData() {
-    // Simular exportação
-    showToast('<?= t('exporting') ?>...', 'info');
-    setTimeout(() => {
-        showToast('<?= t('success_exported') ?>!', 'success');
-    }, 2000);
-}
-
-function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = 'toast-custom';
-    toast.innerHTML = `
-        <div class="d-flex align-items-center">
-            <span class="me-2">${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
-            <span>${message}</span>
-            <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
-        </div>
-    `;
-    
-    const container = document.querySelector('.toast-container') || createToastContainer();
-    container.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.remove();
-    }, 5000);
-}
-
-function createToastContainer() {
-    const container = document.createElement('div');
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-    return container;
-}
-
-// Animações de entrada
-document.addEventListener('DOMContentLoaded', function() {
-    const cards = document.querySelectorAll('.card');
-    cards.forEach((card, index) => {
-        card.style.animationDelay = `${index * 0.1}s`;
-    });
-});
-
-// Verificar se os elementos existem antes de criar os gráficos
 document.addEventListener('DOMContentLoaded', function() {
     const estadoChartEl = document.getElementById('estadoChart');
     const setorChartEl = document.getElementById('setorChart');
-    
     if (estadoChartEl) {
-        const estadoData = {
-            labels: <?= json_encode(array_map(function($e){return ucfirst(str_replace('_',' ',$e));}, array_keys($por_estado))) ?>,
-            datasets: [{
-                data: <?= json_encode(array_values($por_estado)) ?>,
-                backgroundColor: ['#f39c12', '#3498db', '#27ae60', '#7f8c8d'],
-            }]
-        };
-        try {
-            new Chart(estadoChartEl, {
-                type: 'pie',
-                data: estadoData,
-            });
-        } catch (e) {
-            console.error('Erro ao criar gráfico de estado:', e);
-        }
+        new Chart(estadoChartEl, {
+            type: 'pie',
+            data: {
+                labels: <?= json_encode(array_map(function($e){return ucfirst(str_replace('_',' ',$e));}, array_keys($por_estado))) ?>,
+                datasets: [{
+                    data: <?= json_encode(array_values($por_estado)) ?>,
+                    backgroundColor: ['#d97706', '#0284c7', '#059669', '#64748b'],
+                }]
+            },
+            options: { plugins: { legend: { position: 'bottom' } } }
+        });
     }
-    
     if (setorChartEl && <?= json_encode(!empty($setores)) ?>) {
-        const setorData = {
-            labels: <?= json_encode(array_column($setores, 'setor')) ?>,
-            datasets: [{
-                label: 'Documentos',
-                data: <?= json_encode(array_column($setores, 'total')) ?>,
-                backgroundColor: '#2980b9'
-            }]
-        };
-        try {
-            new Chart(setorChartEl, {
-                type: 'bar',
-                data: setorData,
-                options: {
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            });
-        } catch (e) {
-            console.error('Erro ao criar gráfico de setor:', e);
-        }
+        new Chart(setorChartEl, {
+            type: 'bar',
+            data: {
+                labels: <?= json_encode(array_column($setores, 'setor')) ?>,
+                datasets: [{
+                    label: 'Documentos',
+                    data: <?= json_encode(array_column($setores, 'total')) ?>,
+                    backgroundColor: '#0f766e'
+                }]
+            },
+            options: {
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { display: false } }
+            }
+        });
     } else if (setorChartEl) {
-        setorChartEl.parentElement.innerHTML = '<p class="text-muted">Nenhum dado de setor disponível.</p>';
+        setorChartEl.parentElement.innerHTML = '<p class="text-muted mb-0">Nenhum dado de setor disponível.</p>';
     }
 });
 </script>
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html> 
+<?php
+$sigdoc_extra_scripts = ob_get_clean();
+require 'includes/layout_footer.php';
+ 

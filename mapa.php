@@ -31,124 +31,86 @@ try {
     $documentos = [];
 }
 ?>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa de Documentos</title>
-    
+<?php
+$sigdoc_base = '';
+$page_title = 'Mapa de documentos';
+$sigdoc_active = 'mapa';
+$sigdoc_extra_head = '
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
-    
     <style>
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
-        #mapa { height: 100vh; width: 100%; }
-        .map-header { position: absolute; top: 10px; left: 50px; z-index: 1000; background: white; padding: 10px 20px; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.4); font-weight: bold; }
-        .map-controls { position: absolute; top: 60px; left: 50px; z-index: 1000; background: white; padding: 10px; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.2); max-width: 300px; }
-        .map-controls label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .map-controls select, .map-controls input, .map-controls button { width: 100%; margin-bottom: 10px; padding: 5px; }
-        .map-controls button { background-color: #3498db; color: white; border: none; cursor: pointer; border-radius: 3px; }
-        .map-controls button:hover { background-color: #2980b9; }
-        .btn-ver-documento, .btn-rota { display: inline-block; padding: 5px 10px; color: white; text-decoration: none; border-radius: 3px; font-size: 0.9em; margin-top: 5px; margin-right: 5px; cursor: pointer; border: none; }
-        .btn-ver-documento { background-color: #3498db; }
-        .btn-rota { background-color: #2ecc71; }
-        
+        .sig-content { padding: 0 !important; }
+        #mapa { height: calc(100vh - var(--header-h)); width: 100%; }
+        .map-header { position: absolute; top: calc(var(--header-h) + 12px); left: calc(var(--sidebar-w) + 52px); z-index: 1000; background: var(--paper); padding: 8px 14px; border-radius: var(--radius); border: 1px solid var(--borda); font-weight: 650; font-size: var(--text-sm); }
+        .map-controls { position: absolute; top: calc(var(--header-h) + 56px); left: calc(var(--sidebar-w) + 52px); z-index: 1000; background: var(--paper); padding: 12px; border-radius: var(--radius); border: 1px solid var(--borda); max-width: 280px; font-size: var(--text-sm); }
+        .map-controls label { display: block; margin-bottom: 4px; font-weight: 650; font-size: var(--text-xs); color: var(--cinza); text-transform: uppercase; letter-spacing: 0.04em; }
+        .map-controls select, .map-controls input, .map-controls button { width: 100%; margin-bottom: 8px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--borda); font-family: inherit; }
+        .map-controls button { background: var(--brand); color: #fff; border: none; cursor: pointer; font-weight: 600; }
+        .map-controls button:hover { background: var(--brand-hover); }
+        .btn-ver-documento, .btn-rota { display: inline-block; padding: 5px 10px; color: white; text-decoration: none; border-radius: 4px; font-size: 0.85em; margin-top: 5px; margin-right: 5px; cursor: pointer; border: none; }
+        .btn-ver-documento { background: var(--brand); }
+        .btn-rota { background: var(--sucesso); }
         .user-marker-container { background: transparent; border: none; }
         .user-location-wrapper { position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
-        .user-position-dot {
-            width: 16px; height: 16px; background-color: #3498db; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.3); z-index: 2;
-        }
-        .user-heading-arrow {
-            position: absolute; top: 0; left: 50%; margin-left: -10px; width: 0; height: 0;
-            border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 20px solid rgba(52, 152, 219, 0.8);
-            z-index: 1; transform-origin: center 20px; transition: transform 0.3s ease; display: block;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(52, 152, 219, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(52, 152, 219, 0); }
-        }
+        .user-position-dot { width: 16px; height: 16px; background-color: var(--brand); border: 3px solid white; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.3); z-index: 2; }
+        .user-heading-arrow { position: absolute; top: 0; left: 50%; margin-left: -10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 20px solid rgba(15, 118, 110, 0.8); z-index: 1; transform-origin: center 20px; transition: transform 0.3s ease; display: block; }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(15, 118, 110, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(15, 118, 110, 0); } }
         .user-position-dot { animation: pulse 2s infinite; }
-        
-        /* Modal de loading */
-        .loading-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-        }
-        .loading-modal.active {
-            display: flex;
-        }
-        .loading-content {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            text-align: center;
-            max-width: 300px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-        .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .loading-modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); z-index: 10000; justify-content: center; align-items: center; }
+        .loading-modal.active { display: flex; }
+        .loading-content { background: white; padding: 24px; border-radius: 8px; text-align: center; max-width: 300px; border: 1px solid var(--borda); }
+        .loading-spinner { border: 3px solid #e2e8f0; border-top: 3px solid var(--brand); border-radius: 50%; width: 36px; height: 36px; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 900px) {
+          .map-header, .map-controls { left: 12px; }
+          .map-header { top: calc(var(--header-h) + 8px); }
+          .map-controls { top: calc(var(--header-h) + 52px); max-width: calc(100vw - 24px); }
         }
     </style>
-</head>
-<body>
-    <!-- Modal de Loading -->
+';
+require 'includes/lang.php';
+require 'includes/theme_config.php';
+require 'includes/layout_header.php';
+?>
+<div class="map-page">
     <div id="loadingModal" class="loading-modal">
         <div class="loading-content">
             <div class="loading-spinner"></div>
-            <h4>Buscando localização...</h4>
-            <p>Por favor, aguarde enquanto obtemos sua posição.</p>
-            <p style="font-size: 0.9em; color: #666; margin-top: 10px;">Certifique-se de que o GPS está ativado.</p>
+            <h4 style="margin:0 0 8px;font-size:1rem">A obter localização…</h4>
+            <p style="margin:0;color:var(--cinza);font-size:0.875rem">Active o GPS se necessário.</p>
         </div>
     </div>
-    
-    <div class="map-header"><i class="fas fa-map-marker-alt"></i> Mapa de Documentos</div>
-    
+
+    <div class="map-header">Mapa de documentos</div>
+
     <div class="map-controls">
-        <label for="filtro-categoria">Filtrar por Categoria:</label>
-        <select id="filtro-categoria"><option value="">Todas as categorias</option></select>
-        <label for="filtro-tipo">Filtrar por Tipo:</label>
+        <label for="filtro-categoria">Categoria</label>
+        <select id="filtro-categoria"><option value="">Todas</option></select>
+        <label for="filtro-tipo">Tipo</label>
         <select id="filtro-tipo">
-            <option value="">Todos os tipos</option>
+            <option value="">Todos</option>
             <option value="contrato">Contratos</option>
             <option value="relatorio">Relatórios</option>
             <option value="fatura">Faturas</option>
         </select>
-        <label for="raio-proximidade">Documentos próximos (raio em km):</label>
+        <label for="raio-proximidade">Raio (km)</label>
         <select id="raio-proximidade">
-            <option value="1">1 km</option>
-            <option value="3">3 km</option>
-            <option value="5" selected>5 km</option>
-            <option value="10">10 km</option>
-            <option value="25">25 km</option>
+            <option value="1">1</option>
+            <option value="3">3</option>
+            <option value="5" selected>5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
         </select>
-        <button id="btn-proximos">Buscar próximos</button>
-        <button id="btn-localizar" style="margin-top: 5px;"><i class="fas fa-location-arrow"></i> Minha Localização</button>
-        <button id="btn-limpar-rota" style="margin-top: 5px; background-color: #e74c3c; display: none;"><i class="fas fa-times"></i> Limpar Rota</button>
+        <button type="button" id="btn-proximos">Buscar próximos</button>
+        <button type="button" id="btn-localizar">Minha localização</button>
+        <button type="button" id="btn-limpar-rota" style="display:none;background:var(--erro)!important">Limpar rota</button>
     </div>
-    
+
     <div id="mapa"></div>
+</div>
+
     
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
@@ -543,5 +505,5 @@ try {
 
         initMap();
     </script>
-</body>
-</html>
+</div>
+<?php require 'includes/layout_footer.php'; ?>
