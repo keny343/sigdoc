@@ -234,7 +234,11 @@ $documentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <a href="editar.php?id=<?= $doc['id'] ?>" class="btn btn-sm btn-warning acao-btn"><?= t('edit') ?></a> 
                     <?php endif; ?>
                     <?php if ($pode_ver && (is_admin() || is_gestor())): ?>
-                        <a href="excluir.php?id=<?= $doc['id'] ?>" onclick="return confirm('<?= t('confirm_delete') ?>')" class="btn btn-sm btn-danger acao-btn"><?= t('delete') ?></a> 
+                        <form method="post" action="excluir.php" class="d-inline" onsubmit="return confirm('<?= htmlspecialchars(t('confirm_delete'), ENT_QUOTES) ?>')">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="id" value="<?= (int) $doc['id'] ?>">
+                            <button type="submit" class="btn btn-sm btn-danger acao-btn"><?= t('delete') ?></button>
+                        </form>
                     <?php endif; ?>
                     <?php if ($pode_ver): ?>
                         <a href="historico.php?id=<?= $doc['id'] ?>" class="btn btn-sm btn-info acao-btn"><?= t('history') ?></a>

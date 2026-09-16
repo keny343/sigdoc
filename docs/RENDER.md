@@ -112,4 +112,5 @@ Render free web services sleep after idle time. First request after sleep can ta
 
 - Secrets only in Render env  
 - Rotate any credentials that ever appeared in git history  
-- Remaining gap: state-changing GETs — see [`SECURITY.md`](./SECURITY.md)
+- Remaining debt: API tokens / CORS / uploads — see [`SECURITY.md`](./SECURITY.md)
+

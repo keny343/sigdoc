@@ -609,8 +609,24 @@ error_reporting(E_ALL);
 // Definir timezone de Angola
 date_default_timezone_set('Africa/Luanda');
 
-// Corrigir acesso a $_GET['acao']
-$acao = $_GET['acao'] ?? '';
+// Corrigir acesso a acao (GET list/download; POST for mutations)
+$acao = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao'])) {
+    $acao = (string) $_POST['acao'];
+} elseif (isset($_GET['acao'])) {
+    $acao = (string) $_GET['acao'];
+}
+
+// Mutations must be POST + CSRF (executar / restaurar)
+if (in_array($acao, ['executar', 'restaurar'], true)) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        header('Allow: POST');
+        header('Location: ?acao=listar');
+        exit;
+    }
+    csrf_require();
+}
 
 // Download deve ser tratado ANTES de qualquer saída HTML (headers)
 if ($acao === 'baixar' && isset($_GET['timestamp'])) {
@@ -691,20 +707,30 @@ switch ($acao) {
                 echo '<li><a class="dropdown-item" href="?acao=baixar&timestamp=' . urlencode($backup['timestamp']) . '&tipo=config">Configurações (.zip)</a></li>';
                 echo '</ul>';
                 echo '</div>';
-                echo ' <a href="?acao=restaurar&timestamp=' . urlencode($backup['timestamp']) . '" class="btn btn-sm btn-warning" onclick="return confirm(\'Tem certeza? Esta ação irá sobrescrever dados atuais.\')">Restaurar</a>';
+                echo ' <form method="post" class="d-inline" onsubmit="return confirm(\'Tem certeza? Esta ação irá sobrescrever dados atuais.\')">';
+                echo csrf_field();
+                echo '<input type="hidden" name="acao" value="restaurar">';
+                echo '<input type="hidden" name="timestamp" value="' . htmlspecialchars($backup['timestamp'], ENT_QUOTES) . '">';
+                echo '<button type="submit" class="btn btn-sm btn-warning">Restaurar</button>';
+                echo '</form>';
                 echo '</td>';
                 echo '</tr>';
             }
             echo '</tbody></table></div>';
         }
-        echo '<a href="?acao=executar" class="btn btn-success mt-3">Executar Novo Backup</a>';
+        echo '<form method="post" class="d-inline">';
+        echo csrf_field();
+        echo '<input type="hidden" name="acao" value="executar">';
+        echo '<button type="submit" class="btn btn-success mt-3">Executar Novo Backup</button>';
+        echo '</form>';
         echo '</div></div>';
         break;
     case 'restaurar':
-        if (isset($_GET['timestamp'])) {
+        $timestamp = (string) ($_POST['timestamp'] ?? '');
+        if ($timestamp !== '') {
             $backup = new BackupSystem();
             try {
-                $backup->restaurarBackup($_GET['timestamp']);
+                $backup->restaurarBackup($timestamp);
                 echo '<div class="alert alert-success mt-4">Restauração executada com sucesso!</div>';
             } catch (Exception $e) {
                 echo '<div class="alert alert-danger mt-4">Erro na restauração: ' . htmlspecialchars($e->getMessage()) . '</div>';
@@ -717,7 +743,11 @@ switch ($acao) {
         echo '<div class="card-header bg-primary text-white"><h4 class="mb-0">Sistema de Backup - SIGDoc</h4></div>';
         echo '<div class="card-body">';
         echo '<p>Bem-vindo ao painel de backup do sistema SIGDoc. Aqui você pode realizar backups completos do sistema, restaurar versões anteriores e visualizar o histórico de backups.</p>';
-        echo '<a href="?acao=executar" class="btn btn-success me-2">Executar Backup Agora</a>';
+        echo '<form method="post" class="d-inline me-2">';
+        echo csrf_field();
+        echo '<input type="hidden" name="acao" value="executar">';
+        echo '<button type="submit" class="btn btn-success">Executar Backup Agora</button>';
+        echo '</form>';
         echo '<a href="?acao=listar" class="btn btn-outline-primary">Ver Backups</a>';
         echo '</div></div>';
         break;

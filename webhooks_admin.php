@@ -29,20 +29,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_token_id'], $_PO
     $msg = 'Token atualizado!';
 }
 
-// Ativar/desativar webhook
-if (isset($_GET['toggle']) && is_numeric($_GET['toggle'])) {
-    $id = (int)$_GET['toggle'];
-    $stmt = $pdo->prepare('UPDATE webhooks SET ativo = NOT ativo WHERE id = ?');
-    $stmt->execute([$id]);
-    header('Location: webhooks_admin.php');
-    exit;
-}
-
-// Remover webhook
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
-    $stmt = $pdo->prepare('DELETE FROM webhooks WHERE id = ?');
-    $stmt->execute([$id]);
+// Ativar/desativar ou remover webhook (POST + CSRF)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['webhook_action'], $_POST['webhook_id'])) {
+    csrf_require();
+    $id = (int) $_POST['webhook_id'];
+    $action = (string) $_POST['webhook_action'];
+    if ($id > 0 && $action === 'toggle') {
+        $stmt = $pdo->prepare('UPDATE webhooks SET ativo = NOT ativo WHERE id = ?');
+        $stmt->execute([$id]);
+    } elseif ($id > 0 && $action === 'delete') {
+        $stmt = $pdo->prepare('DELETE FROM webhooks WHERE id = ?');
+        $stmt->execute([$id]);
+    }
     header('Location: webhooks_admin.php');
     exit;
 }
@@ -113,9 +111,19 @@ $webhooks = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <button type="submit" class="btn btn-sm btn-secondary">Salvar</button>
                             </form>
                         </td>
-                        <td>
-                            <a href="?toggle=<?= $wh['id'] ?>" class="btn btn-sm btn-warning">Ativar/Desativar</a>
-                            <a href="?delete=<?= $wh['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Remover este webhook?')">Remover</a>
+                        <td class="text-nowrap">
+                            <form method="post" class="d-inline">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="webhook_id" value="<?= (int) $wh['id'] ?>">
+                                <input type="hidden" name="webhook_action" value="toggle">
+                                <button type="submit" class="btn btn-sm btn-warning">Ativar/Desativar</button>
+                            </form>
+                            <form method="post" class="d-inline" onsubmit="return confirm('Remover este webhook?')">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="webhook_id" value="<?= (int) $wh['id'] ?>">
+                                <input type="hidden" name="webhook_action" value="delete">
+                                <button type="submit" class="btn btn-sm btn-danger">Remover</button>
+                            </form>
                         </td>
                     </tr>
                 <?php endforeach; ?>

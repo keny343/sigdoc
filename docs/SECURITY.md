@@ -47,7 +47,7 @@ No `config.local.php` on the server. See [`RENDER.md`](./RENDER.md).
 |-------|--------|-----------------|
 | CSRF tokens on state-changing HTML forms | **Done** | Session `_csrf` + `csrf_require()` |
 | Rate limiting on login / 2FA OTP | **Done** | File buckets in `logs/rate_limit/` (5 / 15 min identity; 25 / 15 min IP; HTTP 429) |
-| State-changing actions via GET (e.g. delete document, webhook toggle) | Gap | Convert to POST + CSRF |
+| State-changing actions via GET (delete document, webhook toggle/delete, backup run/restore) | **Done** | POST + CSRF forms; downloads may remain GET |
 | Static API bearer tokens in config | Weak for production | Prefer `usuariosapi` tokens or JWT |
 | CORS `*` on API | Broad | Restrict origins |
 | `arquivo_acao.php` path ops | High risk if exposed | Auth + path allowlist |
@@ -58,7 +58,7 @@ Documenting these gaps is intentional: security maturity includes knowing what r
 
 ### Deployment blocker vs code debt
 
-Go-live depends on **hosting steps** (MySQL + secrets + smoke test), not only code. Prefer [`RENDER.md`](./RENDER.md) for GitHub auto-deploy, or [`INFINITYFREE.md`](./INFINITYFREE.md) for shared hosting. Next hardening: convert state-changing GET actions to POST + CSRF.
+Go-live depends on **hosting steps** (MySQL + secrets + smoke test), not only code. Prefer [`RENDER.md`](./RENDER.md) for GitHub auto-deploy, or [`INFINITYFREE.md`](./INFINITYFREE.md) for shared hosting. Remaining debt: static API tokens, CORS, upload hardening — see table above.
 
 ## Pre-push checklist
 
