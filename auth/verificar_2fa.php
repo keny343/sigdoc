@@ -1,6 +1,7 @@
 <?php
 require_once '../includes/auth.php';
 require_once '../includes/db.php';
+require_once '../includes/rate_limit.php';
 
 if (!is_logged_in()) {
     header('Location: login.php');
@@ -17,6 +18,9 @@ $erro = '';
 $mensagem = '';
 $documento_id = $_GET['documento_id'] ?? null;
 $url_retorno = $_GET['retorno'] ?? '../documentos/listar.php';
+$otpRlMax = 5;
+$otpRlWindow = 900;
+$bucketOtp = '2fa:' . $usuario_id . '|' . rate_limit_client_ip();
 
 $stmt = $pdo->prepare('SELECT * FROM usuarios WHERE id = ?');
 $stmt->execute([$usuario_id]);
@@ -45,24 +49,34 @@ if (!$codigo_existe || $codigo_expirado) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_require();
-    $codigo_digitado = $_POST['codigo_2fa'] ?? '';
+    $otpStatus = rate_limit_status($bucketOtp, $otpRlMax, $otpRlWindow);
+    if (!$otpStatus['allowed']) {
+        $retry = $otpStatus['retry_after'];
+        $erro = 'Demasiadas tentativas de código. Tente novamente em ' . $retry . ' segundos.';
+        http_response_code(429);
+        header('Retry-After: ' . max(1, $retry));
+    } else {
+        $codigo_digitado = $_POST['codigo_2fa'] ?? '';
 
-    if (verificar_codigo_2fa_email($codigo_digitado, $usuario['codigo_2fa'], $usuario['data_codigo_2fa'])) {
-        marcar_2fa_verificado();
-        $stmt = $pdo->prepare('UPDATE usuarios SET codigo_2fa = NULL, data_codigo_2fa = NULL WHERE id = ?');
-        $stmt->execute([$usuario_id]);
+        if (verificar_codigo_2fa_email($codigo_digitado, $usuario['codigo_2fa'], $usuario['data_codigo_2fa'])) {
+            rate_limit_clear($bucketOtp);
+            marcar_2fa_verificado();
+            $stmt = $pdo->prepare('UPDATE usuarios SET codigo_2fa = NULL, data_codigo_2fa = NULL WHERE id = ?');
+            $stmt->execute([$usuario_id]);
 
-        if ($documento_id) {
-            registrar_tentativa_acesso_sigiloso($usuario_id, $documento_id, true);
+            if ($documento_id) {
+                registrar_tentativa_acesso_sigiloso($usuario_id, $documento_id, true);
+            }
+
+            header('Location: ' . $url_retorno);
+            exit;
         }
 
-        header('Location: ' . $url_retorno);
-        exit;
-    }
-
-    $erro = 'Código inválido ou expirado.';
-    if ($documento_id) {
-        registrar_tentativa_acesso_sigiloso($usuario_id, $documento_id, false);
+        rate_limit_hit($bucketOtp, $otpRlMax, $otpRlWindow);
+        $erro = 'Código inválido ou expirado.';
+        if ($documento_id) {
+            registrar_tentativa_acesso_sigiloso($usuario_id, $documento_id, false);
+        }
     }
 }
 ?>

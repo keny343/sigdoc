@@ -112,4 +112,4 @@ Render free web services sleep after idle time. First request after sleep can ta
 
 - Secrets only in Render env  
 - Rotate any credentials that ever appeared in git history  
-- CSRF / login rate-limit remain known P0 gaps — see [`SECURITY.md`](./SECURITY.md)
+- Remaining gap: state-changing GETs — see [`SECURITY.md`](./SECURITY.md)

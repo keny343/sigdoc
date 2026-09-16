@@ -9,6 +9,9 @@ uploads/*
 !uploads/.gitkeep
 logs/*
 !logs/.gitkeep
+!logs/rate_limit/
+logs/rate_limit/*
+!logs/rate_limit/.gitkeep
 backups/*
 !backups/.gitkeep
 

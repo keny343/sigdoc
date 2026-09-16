@@ -1,5 +1,6 @@
 <?php
 require_once 'includes/auth.php';
+require_once 'includes/rate_limit.php';
 
 if (is_logged_in() && is_admin()) {
     header('Location: webhooks_admin.php');
@@ -7,19 +8,38 @@ if (is_logged_in() && is_admin()) {
 }
 
 $erro = '';
+$loginRlMaxIdentity = 5;
+$loginRlMaxIp = 25;
+$loginRlWindow = 900;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_require();
     $email = trim($_POST['email'] ?? '');
     $senha = trim($_POST['senha'] ?? '');
-    if (login($email, $senha)) {
+    $ip = rate_limit_client_ip();
+    $bucketIdentity = 'login:' . strtolower($email) . '|' . $ip;
+    $bucketIp = 'login_ip:' . $ip;
+
+    $statusIdentity = rate_limit_status($bucketIdentity, $loginRlMaxIdentity, $loginRlWindow);
+    $statusIp = rate_limit_status($bucketIp, $loginRlMaxIp, $loginRlWindow);
+
+    if (!$statusIdentity['allowed'] || !$statusIp['allowed']) {
+        $retry = max($statusIdentity['retry_after'], $statusIp['retry_after']);
+        $erro = 'Demasiadas tentativas de login. Tente novamente em ' . $retry . ' segundos.';
+        http_response_code(429);
+        header('Retry-After: ' . max(1, $retry));
+    } elseif (login($email, $senha)) {
+        rate_limit_clear($bucketIdentity);
+        rate_limit_clear($bucketIp);
         if (is_admin()) {
             header('Location: webhooks_admin.php');
             exit;
-        } else {
-            logout();
-            $erro = 'Apenas administradores podem acessar este painel.';
         }
+        logout();
+        $erro = 'Apenas administradores podem acessar este painel.';
     } else {
+        rate_limit_hit($bucketIdentity, $loginRlMaxIdentity, $loginRlWindow);
+        rate_limit_hit($bucketIp, $loginRlMaxIp, $loginRlWindow);
         $erro = 'Usuário ou senha inválidos.';
     }
 }

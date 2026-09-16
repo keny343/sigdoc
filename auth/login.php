@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/lang.php';
+require_once __DIR__ . '/../includes/rate_limit.php';
 
 if (isset($_GET['lang']) && in_array($_GET['lang'], ['pt', 'en'], true)) {
     set_language_cookie($_GET['lang']);
@@ -17,15 +18,32 @@ if (is_logged_in()) {
 }
 
 $erro = '';
+// Limits: 5 failures / 15 min per email+IP; 25 / 15 min per IP
+$loginRlMaxIdentity = 5;
+$loginRlMaxIp = 25;
+$loginRlWindow = 900;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_require();
     $email = trim((string) ($_POST['email'] ?? ''));
     $senha = (string) ($_POST['senha'] ?? '');
+    $ip = rate_limit_client_ip();
+    $bucketIdentity = 'login:' . strtolower($email) . '|' . $ip;
+    $bucketIp = 'login_ip:' . $ip;
 
-    if ($email === '' || $senha === '') {
+    $statusIdentity = rate_limit_status($bucketIdentity, $loginRlMaxIdentity, $loginRlWindow);
+    $statusIp = rate_limit_status($bucketIp, $loginRlMaxIp, $loginRlWindow);
+
+    if (!$statusIdentity['allowed'] || !$statusIp['allowed']) {
+        $retry = max($statusIdentity['retry_after'], $statusIp['retry_after']);
+        $erro = 'Demasiadas tentativas de login. Tente novamente em ' . $retry . ' segundos.';
+        http_response_code(429);
+        header('Retry-After: ' . max(1, $retry));
+    } elseif ($email === '' || $senha === '') {
         $erro = 'Email e palavra-passe são obrigatórios.';
     } elseif (login($email, $senha)) {
+        rate_limit_clear($bucketIdentity);
+        rate_limit_clear($bucketIp);
         try {
             if (isset($pdo, $_SESSION['usuario_id'])) {
                 $stmt = $pdo->prepare("INSERT INTO acessos (usuario_id, acao, ip) VALUES (?, 'login', ?)");
@@ -42,6 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: /painel.php');
         exit;
     } else {
+        rate_limit_hit($bucketIdentity, $loginRlMaxIdentity, $loginRlWindow);
+        rate_limit_hit($bucketIp, $loginRlMaxIp, $loginRlWindow);
         $erro = 'Credenciais inválidas.';
     }
 }

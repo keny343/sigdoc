@@ -99,7 +99,7 @@ Optional follow-ups: export CSV/PDF, movement history, document versions.
 
 - Rotate any MySQL / SMTP / API credentials that ever appeared in public history
 - Keep `includes/config.local.php` gitignored and off screenshots
-- Known gaps (CSRF, login/2FA rate limits): see [`SECURITY.md`](./SECURITY.md)
+- Known gaps (GET mutations, etc.): see [`SECURITY.md`](./SECURITY.md)
 
 ## Local vs hosting
 

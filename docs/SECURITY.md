@@ -9,6 +9,7 @@ Protect document confidentiality while remaining deployable on shared PHP hostin
 | Control | Where |
 |---------|--------|
 | CSRF on HTML form POSTs | `includes/csrf.php` + forms / handlers |
+| Rate limit on login / 2FA | `includes/rate_limit.php` + auth login endpoints |
 | Password hashing | `password_hash` / `password_verify` |
 | SQL injection resistance | PDO prepared statements |
 | Session hardening | `config_ssl.php` (Secure / HttpOnly / SameSite when HTTPS) |
@@ -45,7 +46,7 @@ No `config.local.php` on the server. See [`RENDER.md`](./RENDER.md).
 | Issue | Status | Mitigation path |
 |-------|--------|-----------------|
 | CSRF tokens on state-changing HTML forms | **Done** | Session `_csrf` + `csrf_require()` |
-| Rate limiting on login / 2FA OTP | **P0 gap** | Per-IP / per-account throttle + lockout |
+| Rate limiting on login / 2FA OTP | **Done** | File buckets in `logs/rate_limit/` (5 / 15 min identity; 25 / 15 min IP; HTTP 429) |
 | State-changing actions via GET (e.g. delete document, webhook toggle) | Gap | Convert to POST + CSRF |
 | Static API bearer tokens in config | Weak for production | Prefer `usuariosapi` tokens or JWT |
 | CORS `*` on API | Broad | Restrict origins |
@@ -57,7 +58,7 @@ Documenting these gaps is intentional: security maturity includes knowing what r
 
 ### Deployment blocker vs code debt
 
-Go-live depends on **hosting steps** (MySQL + secrets + smoke test), not only code. Prefer [`RENDER.md`](./RENDER.md) for GitHub auto-deploy, or [`INFINITYFREE.md`](./INFINITYFREE.md) for shared hosting. CSRF and rate limits should be implemented next while the demo stays usable with strong passwords and short demo sessions.
+Go-live depends on **hosting steps** (MySQL + secrets + smoke test), not only code. Prefer [`RENDER.md`](./RENDER.md) for GitHub auto-deploy, or [`INFINITYFREE.md`](./INFINITYFREE.md) for shared hosting. Next hardening: convert state-changing GET actions to POST + CSRF.
 
 ## Pre-push checklist
 
