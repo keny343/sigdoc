@@ -125,7 +125,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'prazo' => $_POST['prazo']
         ];
         disparar_webhook('documento_criado', $dados_webhook);
-        header('Location: listar.php');
+        if (!headers_sent()) {
+            header('Location: listar.php');
+            exit;
+        }
+        echo '<script>location.href="listar.php";</script>';
         exit;
     } elseif (!$erro) {
         $erro = "Erro ao fazer upload do arquivo.";

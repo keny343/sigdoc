@@ -113,5 +113,3 @@ function enviarEmail($destino, $assunto, $mensagem) {
         return false;
     }
 }
-?>
- 
